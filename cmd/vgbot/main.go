@@ -18,14 +18,14 @@ import (
 	"syscall"
 	"time"
 
-	"eroshit/internal/config"
-	"eroshit/internal/server"
-	"eroshit/internal/simulator"
-	"eroshit/pkg/banner"
-	"eroshit/pkg/configfiles"
-	"eroshit/pkg/i18n"
-	"eroshit/pkg/sysinfo"
-	"eroshit/pkg/useragent"
+	"vgbot/internal/config"
+	"vgbot/internal/server"
+	"vgbot/internal/simulator"
+	"vgbot/pkg/banner"
+	"vgbot/pkg/configfiles"
+	"vgbot/pkg/i18n"
+	"vgbot/pkg/sysinfo"
+	"vgbot/pkg/useragent"
 )
 
 // Global language variable

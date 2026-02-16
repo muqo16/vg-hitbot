@@ -18,14 +18,14 @@ import (
 	"github.com/chromedp/cdproto/page"
 	"github.com/chromedp/chromedp"
 
-	"eroshit/pkg/behavior"
-	"eroshit/pkg/canvas"
-	"eroshit/pkg/engagement"
-	"eroshit/pkg/fingerprint"
-	"eroshit/pkg/mobile"
-	"eroshit/pkg/referrer"
-	"eroshit/pkg/stealth"
-	"eroshit/pkg/useragent"
+	"vgbot/pkg/behavior"
+	"vgbot/pkg/canvas"
+	"vgbot/pkg/engagement"
+	"vgbot/pkg/fingerprint"
+	"vgbot/pkg/mobile"
+	"vgbot/pkg/referrer"
+	"vgbot/pkg/stealth"
+	"vgbot/pkg/useragent"
 )
 
 // PooledHitVisitor is a high-performance visitor that uses browser pool

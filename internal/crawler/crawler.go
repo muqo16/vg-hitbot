@@ -9,8 +9,8 @@ import (
 
 	"github.com/gocolly/colly/v2"
 
-	"eroshit/internal/reporter"
-	"eroshit/pkg/useragent"
+	"vgbot/internal/reporter"
+	"vgbot/pkg/useragent"
 )
 
 // Crawler domain-scoped, etik crawler

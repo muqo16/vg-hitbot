@@ -1,4 +1,4 @@
-# ErosHit Distributed Mode
+# vgbot Distributed Mode
 
 Master-Worker mimarisi ile dağıtık mod test sistemi.
 
@@ -7,18 +7,18 @@ Master-Worker mimarisi ile dağıtık mod test sistemi.
 ### 1. Master Başlat
 
 ```bash
-cd eros-hitbot
-go run cmd/eroshit/master.go -bind 0.0.0.0:8080 -secret my-secret-key
+cd vg-hitbot
+go run cmd/vgbot/master.go -bind 0.0.0.0:8080 -secret my-secret-key
 ```
 
 ### 2. Worker(lar) Başlat
 
 ```bash
 # Worker 1
-go run cmd/eroshit/worker.go -master http://localhost:8080 -secret my-secret-key -concurrency 5
+go run cmd/vgbot/worker.go -master http://localhost:8080 -secret my-secret-key -concurrency 5
 
 # Worker 2 (başka terminal)
-go run cmd/eroshit/worker.go -master http://localhost:8080 -secret my-secret-key -concurrency 10
+go run cmd/vgbot/worker.go -master http://localhost:8080 -secret my-secret-key -concurrency 10
 ```
 
 ### 3. Task Gönder
@@ -89,13 +89,13 @@ Aynı makinede test için farklı portlar kullanın:
 
 ```bash
 # Terminal 1 - Master
-go run cmd/eroshit/master.go -bind 0.0.0.0:8080
+go run cmd/vgbot/master.go -bind 0.0.0.0:8080
 
 # Terminal 2 - Worker 1
-go run cmd/eroshit/worker.go -master http://localhost:8080 -concurrency 5
+go run cmd/vgbot/worker.go -master http://localhost:8080 -concurrency 5
 
 # Terminal 3 - Worker 2
-go run cmd/eroshit/worker.go -master http://localhost:8080 -concurrency 5
+go run cmd/vgbot/worker.go -master http://localhost:8080 -concurrency 5
 
 # Terminal 4 - Task gönder
 curl -X POST http://localhost:8080/api/v1/master/task/submit \

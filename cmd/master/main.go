@@ -14,7 +14,7 @@ import (
 	"syscall"
 	"time"
 
-	"eroshit/pkg/distributed"
+	"vgbot/pkg/distributed"
 )
 
 func main() {

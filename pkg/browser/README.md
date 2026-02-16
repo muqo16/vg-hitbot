@@ -1,6 +1,6 @@
 # Browser Pool - Yüksek Performanslı Chrome Instance Yönetimi
 
-Bu paket, ErosHit projesi için yüksek performanslı bir Browser Pool implementasyonu sağlar. Object Pool pattern kullanarak Chrome instance'larını yeniden kullanır.
+Bu paket, vgbot projesi için yüksek performanslı bir Browser Pool implementasyonu sağlar. Object Pool pattern kullanarak Chrome instance'larını yeniden kullanır.
 
 ## 🎯 Problem ve Çözüm
 
@@ -38,7 +38,7 @@ import (
     "log"
     "time"
     
-    "eroshit/pkg/browser"
+    "vgbot/pkg/browser"
     "github.com/chromedp/chromedp"
 )
 
@@ -238,7 +238,7 @@ instance, err := pool.Acquire(ctx)
 ## 🧪 Test
 
 ```bash
-cd eros-hitbot
+cd vg-hitbot
 go test -v ./pkg/browser/...
 ```
 

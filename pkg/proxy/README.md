@@ -45,7 +45,7 @@ geo_country: "US"  # veya birden fazla: "US,DE,GB"
 
 ```go
 import (
-    "eros-hitbot/pkg/proxy"
+    "vg-hitbot/pkg/proxy"
 )
 
 // Selector oluştur
@@ -63,7 +63,7 @@ selectedProxy := selector.Select(pool, metrics)
 
 ```go
 import (
-    internalproxy "eros-hitbot/internal/proxy"
+    internalproxy "vg-hitbot/internal/proxy"
 )
 
 // Service oluştur ve selector'ü başlat
@@ -156,7 +156,7 @@ selectors := proxy.ListSelectors()
 `internal/proxy` paketi artık selector desteği içeriyor:
 
 ```go
-import "eros-hitbot/internal/proxy"
+import "vg-hitbot/internal/proxy"
 
 // Yeni selector-enabled service oluştur
 service := proxy.NewSelectorEnabledService("weighted", nil)

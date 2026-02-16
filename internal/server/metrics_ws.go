@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	"eroshit/pkg/metrics"
+	"vgbot/pkg/metrics"
 
 	"github.com/gorilla/websocket"
 )
@@ -476,7 +476,7 @@ func generateGrafanaDashboard() map[string]interface{} {
 							"type": "prometheus",
 							"uid":  "${datasource}",
 						},
-						"expr":         "eroshit_hits_total",
+						"expr":         "vgbot_hits_total",
 						"refId":        "A",
 						"legendFormat": "Total Hits",
 					},
@@ -560,7 +560,7 @@ func generateGrafanaDashboard() map[string]interface{} {
 							"type": "prometheus",
 							"uid":  "${datasource}",
 						},
-						"expr":         "eroshit_hit_rate_per_minute",
+						"expr":         "vgbot_hit_rate_per_minute",
 						"refId":        "A",
 						"legendFormat": "Hits/min",
 					},
@@ -617,7 +617,7 @@ func generateGrafanaDashboard() map[string]interface{} {
 							"type": "prometheus",
 							"uid":  "${datasource}",
 						},
-						"expr":         "eroshit_success_rate",
+						"expr":         "vgbot_success_rate",
 						"refId":        "A",
 						"legendFormat": "Success Rate",
 					},
@@ -672,7 +672,7 @@ func generateGrafanaDashboard() map[string]interface{} {
 							"type": "prometheus",
 							"uid":  "${datasource}",
 						},
-						"expr":         "eroshit_active_sessions",
+						"expr":         "vgbot_active_sessions",
 						"refId":        "A",
 						"legendFormat": "Active Sessions",
 					},
@@ -727,7 +727,7 @@ func generateGrafanaDashboard() map[string]interface{} {
 							"type": "prometheus",
 							"uid":  "${datasource}",
 						},
-						"expr":         "eroshit_active_proxies",
+						"expr":         "vgbot_active_proxies",
 						"refId":        "A",
 						"legendFormat": "Active Proxies",
 					},
@@ -824,7 +824,7 @@ func generateGrafanaDashboard() map[string]interface{} {
 							"type": "prometheus",
 							"uid":  "${datasource}",
 						},
-						"expr":         "histogram_quantile(0.95, sum(rate(eroshit_response_time_seconds_bucket[5m])) by (le))",
+						"expr":         "histogram_quantile(0.95, sum(rate(vgbot_response_time_seconds_bucket[5m])) by (le))",
 						"refId":        "A",
 						"legendFormat": "p95 Response Time",
 					},
@@ -833,7 +833,7 @@ func generateGrafanaDashboard() map[string]interface{} {
 							"type": "prometheus",
 							"uid":  "${datasource}",
 						},
-						"expr":         "histogram_quantile(0.50, sum(rate(eroshit_response_time_seconds_bucket[5m])) by (le))",
+						"expr":         "histogram_quantile(0.50, sum(rate(vgbot_response_time_seconds_bucket[5m])) by (le))",
 						"refId":        "B",
 						"legendFormat": "p50 Response Time",
 					},
@@ -917,7 +917,7 @@ func generateGrafanaDashboard() map[string]interface{} {
 							"type": "prometheus",
 							"uid":  "${datasource}",
 						},
-						"expr":         "eroshit_error_rate",
+						"expr":         "vgbot_error_rate",
 						"refId":        "A",
 						"legendFormat": "Error Rate",
 					},
@@ -926,7 +926,7 @@ func generateGrafanaDashboard() map[string]interface{} {
 							"type": "prometheus",
 							"uid":  "${datasource}",
 						},
-						"expr":         "eroshit_bounce_rate",
+						"expr":         "vgbot_bounce_rate",
 						"refId":        "B",
 						"legendFormat": "Bounce Rate",
 					},

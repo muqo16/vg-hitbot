@@ -1,6 +1,6 @@
-# ErosHit Metrics System
+# vgbot Metrics System
 
-Real-time metrics collection and dashboard system for ErosHit.
+Real-time metrics collection and dashboard system for vgbot.
 
 ## Features
 
@@ -14,7 +14,7 @@ Real-time metrics collection and dashboard system for ErosHit.
 ### 1. Metrics Collector
 
 ```go
-import "eroshit/pkg/metrics"
+import "vgbot/pkg/metrics"
 
 // Get the global collector
 collector := metrics.GetGlobalCollector()
@@ -71,7 +71,7 @@ Add to your `prometheus.yml`:
 
 ```yaml
 scrape_configs:
-  - job_name: 'eroshit'
+  - job_name: 'vgbot'
     static_configs:
       - targets: ['localhost:8080']
     metrics_path: '/api/metrics'
@@ -82,7 +82,7 @@ scrape_configs:
 
 1. Download dashboard JSON:
    ```bash
-   curl http://localhost:8080/api/metrics/dashboard -o eroshit-dashboard.json
+   curl http://localhost:8080/api/metrics/dashboard -o vgbot-dashboard.json
    ```
 
 2. Import to Grafana:
@@ -96,28 +96,28 @@ scrape_configs:
 
 | Metric | Description |
 |--------|-------------|
-| `eroshit_hits_total` | Total number of hits |
-| `eroshit_proxy_success_total{proxy}` | Successful requests per proxy |
-| `eroshit_proxy_failure_total{proxy}` | Failed requests per proxy |
+| `vgbot_hits_total` | Total number of hits |
+| `vgbot_proxy_success_total{proxy}` | Successful requests per proxy |
+| `vgbot_proxy_failure_total{proxy}` | Failed requests per proxy |
 
 ### Gauges
 
 | Metric | Description |
 |--------|-------------|
-| `eroshit_hit_rate_per_minute` | Current hit rate per minute |
-| `eroshit_active_sessions` | Number of active sessions |
-| `eroshit_active_proxies` | Number of active proxies |
-| `eroshit_queue_size` | Current queue size |
-| `eroshit_success_rate` | Success rate (0-1) |
-| `eroshit_bounce_rate` | Bounce rate (0-1) |
-| `eroshit_error_rate` | Error rate (0-1) |
+| `vgbot_hit_rate_per_minute` | Current hit rate per minute |
+| `vgbot_active_sessions` | Number of active sessions |
+| `vgbot_active_proxies` | Number of active proxies |
+| `vgbot_queue_size` | Current queue size |
+| `vgbot_success_rate` | Success rate (0-1) |
+| `vgbot_bounce_rate` | Bounce rate (0-1) |
+| `vgbot_error_rate` | Error rate (0-1) |
 
 ### Histograms
 
 | Metric | Description |
 |--------|-------------|
-| `eroshit_response_time_seconds` | Response time distribution |
-| `eroshit_proxy_latency_seconds{proxy}` | Proxy latency per proxy |
+| `vgbot_response_time_seconds` | Response time distribution |
+| `vgbot_proxy_latency_seconds{proxy}` | Proxy latency per proxy |
 
 ## Example: Custom Dashboard Widget
 
@@ -146,7 +146,7 @@ ws.onmessage = (event) => {
 ## Integration with Simulator
 
 ```go
-import "eroshit/pkg/metrics"
+import "vgbot/pkg/metrics"
 
 // In your simulator code
 func (s *Simulator) recordHit(result HitResult) {

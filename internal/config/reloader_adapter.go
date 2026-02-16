@@ -3,7 +3,7 @@ package config
 import (
 	"time"
 
-	configpkg "eroshit/pkg/config"
+	configpkg "vgbot/pkg/config"
 )
 
 // Reloader wraps pkg/config.Reloader for internal use

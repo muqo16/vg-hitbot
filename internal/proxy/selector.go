@@ -4,7 +4,7 @@ import (
 	"sync"
 	"time"
 
-	pkgproxy "eroshit/pkg/proxy"
+	pkgproxy "vgbot/pkg/proxy"
 )
 
 // SelectorManager iç proxy paketi için selector yöneticisi

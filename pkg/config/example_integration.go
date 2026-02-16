@@ -14,7 +14,7 @@ import (
 	"syscall"
 	"time"
 
-	configpkg "eroshit/pkg/config"
+	configpkg "vgbot/pkg/config"
 	"go.uber.org/zap"
 )
 

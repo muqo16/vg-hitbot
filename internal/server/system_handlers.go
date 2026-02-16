@@ -5,9 +5,9 @@ import (
 	"net/http"
 	"runtime"
 
-	"eroshit/pkg/network"
-	"eroshit/pkg/system"
-	"eroshit/pkg/stealth"
+	"vgbot/pkg/network"
+	"vgbot/pkg/system"
+	"vgbot/pkg/stealth"
 )
 
 // handleSystemInfo returns system information

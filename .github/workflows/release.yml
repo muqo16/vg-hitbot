@@ -7,9 +7,9 @@ on:
   workflow_dispatch:
     inputs:
       tag_name:
-        description: 'Release tag (e.g. v2.1.0). Required for manual trigger.'
+        description: 'Release tag (e.g. v3.0.0). Required for manual trigger.'
         required: true
-        default: 'v2.1.0'
+        default: 'v3.0.0'
 
 permissions:
   contents: write
@@ -24,15 +24,15 @@ jobs:
 
       - name: Check build path
         run: |
-          if [ ! -d ./cmd/eroshit ]; then
-            echo "::error::cmd/eroshit not found. Add this folder and push: git add cmd/eroshit && git commit -m 'Add cmd/eroshit' && git push"
+          if [ ! -d ./cmd/vgbot ]; then
+            echo "::error::cmd/vgbot not found."
             exit 1
           fi
 
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.21'
+          go-version: '1.22'
 
       - name: Run tests
         run: go test ./...
@@ -44,7 +44,7 @@ jobs:
 
       - name: Generate Windows resources (icon)
         run: |
-          cd cmd/eroshit
+          cd cmd/vgbot
           go-winres make
 
       - name: Build (Windows amd64)
@@ -53,7 +53,7 @@ jobs:
           GOOS: windows
           GOARCH: amd64
         run: |
-          go build -ldflags="-s -w" -o eros-hitbot-windows-amd64.exe ./cmd/eroshit
+          go build -ldflags="-s -w" -o vgbot-windows-amd64.exe ./cmd/vgbot
 
       # macOS builds
       - name: Build (macOS amd64)
@@ -62,7 +62,7 @@ jobs:
           GOOS: darwin
           GOARCH: amd64
         run: |
-          go build -ldflags="-s -w" -o eros-hitbot-darwin-amd64 ./cmd/eroshit
+          go build -ldflags="-s -w" -o vgbot-darwin-amd64 ./cmd/vgbot
 
       - name: Build (macOS arm64 - Apple Silicon)
         env:
@@ -70,7 +70,7 @@ jobs:
           GOOS: darwin
           GOARCH: arm64
         run: |
-          go build -ldflags="-s -w" -o eros-hitbot-darwin-arm64 ./cmd/eroshit
+          go build -ldflags="-s -w" -o vgbot-darwin-arm64 ./cmd/vgbot
 
       # Linux builds
       - name: Build (Linux amd64)
@@ -79,7 +79,7 @@ jobs:
           GOOS: linux
           GOARCH: amd64
         run: |
-          go build -ldflags="-s -w" -o eros-hitbot-linux-amd64 ./cmd/eroshit
+          go build -ldflags="-s -w" -o vgbot-linux-amd64 ./cmd/vgbot
 
       - name: Build (Linux arm64)
         env:
@@ -87,32 +87,32 @@ jobs:
           GOOS: linux
           GOARCH: arm64
         run: |
-          go build -ldflags="-s -w" -o eros-hitbot-linux-arm64 ./cmd/eroshit
+          go build -ldflags="-s -w" -o vgbot-linux-arm64 ./cmd/vgbot
 
       # Create archives
       - name: Create archives
         run: |
           # Windows
-          zip eros-hitbot-windows-amd64.zip eros-hitbot-windows-amd64.exe config.example.json agents.json.example operaagent.json.example
+          zip vgbot-windows-amd64.zip vgbot-windows-amd64.exe config.example.json agents.json.example operaagent.json.example
           
           # macOS
-          zip eros-hitbot-darwin-amd64.zip eros-hitbot-darwin-amd64 config.example.json agents.json.example operaagent.json.example
-          zip eros-hitbot-darwin-arm64.zip eros-hitbot-darwin-arm64 config.example.json agents.json.example operaagent.json.example
+          zip vgbot-darwin-amd64.zip vgbot-darwin-amd64 config.example.json agents.json.example operaagent.json.example
+          zip vgbot-darwin-arm64.zip vgbot-darwin-arm64 config.example.json agents.json.example operaagent.json.example
           
           # Linux
-          tar -czvf eros-hitbot-linux-amd64.tar.gz eros-hitbot-linux-amd64 config.example.json agents.json.example operaagent.json.example
-          tar -czvf eros-hitbot-linux-arm64.tar.gz eros-hitbot-linux-arm64 config.example.json agents.json.example operaagent.json.example
+          tar -czvf vgbot-linux-amd64.tar.gz vgbot-linux-amd64 config.example.json agents.json.example operaagent.json.example
+          tar -czvf vgbot-linux-arm64.tar.gz vgbot-linux-arm64 config.example.json agents.json.example operaagent.json.example
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ github.event.inputs.tag_name || github.ref_name }}
           files: |
-            eros-hitbot-windows-amd64.zip
-            eros-hitbot-darwin-amd64.zip
-            eros-hitbot-darwin-arm64.zip
-            eros-hitbot-linux-amd64.tar.gz
-            eros-hitbot-linux-arm64.tar.gz
+            vgbot-windows-amd64.zip
+            vgbot-darwin-amd64.zip
+            vgbot-darwin-arm64.zip
+            vgbot-linux-amd64.tar.gz
+            vgbot-linux-arm64.tar.gz
           generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

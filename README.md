@@ -180,8 +180,8 @@ VGBot is a **production-grade SEO traffic simulation engine** built in Go. It do
 # Requirements: Go 1.22+, Chrome/Chromium installed
 git clone https://github.com/muqo16/vg-hitbot.git
 cd vgbot
-go build -o vgbot ./cmd/eroshit     # Linux/macOS
-go build -o vgbot.exe ./cmd/eroshit  # Windows
+go build -o vgbot ./cmd/vgbot     # Linux/macOS
+go build -o vgbot.exe ./cmd/vgbot  # Windows
 ```
 
 <br>
@@ -580,8 +580,8 @@ VGBot, Go ile geliştirilmiş **üretim kalitesinde bir SEO trafik simülasyon m
 # Gereksinimler: Go 1.22+, Chrome/Chromium kurulu olmalı
 git clone https://github.com/muqo16/vg-hitbot.git
 cd vgbot
-go build -o vgbot ./cmd/eroshit     # Linux/macOS
-go build -o vgbot.exe ./cmd/eroshit  # Windows
+go build -o vgbot ./cmd/vgbot     # Linux/macOS
+go build -o vgbot.exe ./cmd/vgbot  # Windows
 ```
 
 <br>

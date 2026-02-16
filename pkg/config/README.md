@@ -1,6 +1,6 @@
 # Config Hot-Reload
 
-Bu paket, ErosHit uygulaması için config dosyası hot-reload özelliği sağlar.
+Bu paket, vgbot uygulaması için config dosyası hot-reload özelliği sağlar.
 
 ## Özellikler
 
@@ -15,7 +15,7 @@ Bu paket, ErosHit uygulaması için config dosyası hot-reload özelliği sağla
 `fsnotify` bağımlılığını ekleyin:
 
 ```bash
-cd eros-hitbot
+cd vg-hitbot
 go get github.com/fsnotify/fsnotify
 ```
 
@@ -28,7 +28,7 @@ package main
 
 import (
     "log"
-    configpkg "eroshit/pkg/config"
+    configpkg "vgbot/pkg/config"
 )
 
 func main() {
@@ -113,7 +113,7 @@ Mevcut `internal/config` paketini kullanmak isterseniz, reloader'ı şu şekilde
 package config
 
 import (
-    configpkg "eroshit/pkg/config"
+    configpkg "vgbot/pkg/config"
 )
 
 // Wrap pkg/config for internal use

@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	"eroshit/pkg/i18n"
+	"vgbot/pkg/i18n"
 )
 
 // SystemInfo contains comprehensive system information

@@ -11,8 +11,8 @@ import (
 	"sync/atomic"
 	"time"
 
-	"eroshit/pkg/behavior"
-	"eroshit/pkg/proxy"
+	"vgbot/pkg/behavior"
+	"vgbot/pkg/proxy"
 )
 
 // TaskStatus task durumu

@@ -12,7 +12,7 @@ import (
 	"github.com/chromedp/cdproto/network"
 	"github.com/chromedp/chromedp"
 
-	"eroshit/pkg/fingerprint"
+	"vgbot/pkg/fingerprint"
 )
 
 // SECURITY FIX: Removed deprecated rand.Seed() call

@@ -1,6 +1,6 @@
 # Advanced Session Management
 
-ErosHit için gelişmiş session yönetimi modülü. Cookie persistence, LocalStorage/SessionStorage/IndexedDB persistence, returning visitor simülasyonu ve canvas fingerprint desteği sunar.
+vgbot için gelişmiş session yönetimi modülü. Cookie persistence, LocalStorage/SessionStorage/IndexedDB persistence, returning visitor simülasyonu ve canvas fingerprint desteği sunar.
 
 ## Özellikler
 
@@ -38,7 +38,7 @@ package main
 import (
     "log"
     "time"
-    "eroshit/pkg/session"
+    "vgbot/pkg/session"
 )
 
 func main() {
@@ -276,10 +276,10 @@ func applySession(ctx context.Context, sm *session.SessionManager, sessionID str
 ## Test
 
 ```bash
-cd eros-hitbot
+cd vg-hitbot
 go test ./pkg/session/... -v
 ```
 
 ## Lisans
 
-Bu modül ErosHit projesi kapsamında geliştirilmiştir.
+Bu modül vgbot projesi kapsamında geliştirilmiştir.

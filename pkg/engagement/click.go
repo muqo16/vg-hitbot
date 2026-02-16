@@ -8,7 +8,7 @@ import (
 
 	"github.com/chromedp/chromedp"
 
-	"eroshit/pkg/interaction"
+	"vgbot/pkg/interaction"
 )
 
 // ClickStrategy tıklama stratejisi

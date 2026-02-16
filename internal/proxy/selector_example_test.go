@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	pkgproxy "eroshit/pkg/proxy"
+	pkgproxy "vgbot/pkg/proxy"
 )
 
 // TestSelectorIntegration tam entegrasyon testi

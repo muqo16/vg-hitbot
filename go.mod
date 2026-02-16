@@ -1,4 +1,4 @@
-module eroshit
+module vgbot
 
 go 1.22
 

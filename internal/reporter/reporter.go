@@ -9,7 +9,7 @@ import (
 	"sync"
 	"time"
 
-	"eroshit/pkg/i18n"
+	"vgbot/pkg/i18n"
 )
 
 // PERFORMANCE FIX: Maximum records to prevent memory exhaustion
@@ -177,7 +177,7 @@ func (r *Reporter) Export() error {
 	ts := time.Now().Format("20060102_150405")
 
 	if r.format == "csv" || r.format == "both" {
-		path := filepath.Join(r.outputDir, fmt.Sprintf("eroshit_hits_%s.csv", ts))
+		path := filepath.Join(r.outputDir, fmt.Sprintf("vgbot_hits_%s.csv", ts))
 		if err := r.exportCSV(path); err != nil {
 			return fmt.Errorf("CSV export: %w", err)
 		}
@@ -185,7 +185,7 @@ func (r *Reporter) Export() error {
 	}
 
 	if r.format == "json" || r.format == "both" {
-		path := filepath.Join(r.outputDir, fmt.Sprintf("eroshit_report_%s.json", ts))
+		path := filepath.Join(r.outputDir, fmt.Sprintf("vgbot_report_%s.json", ts))
 		if err := r.exportJSON(path); err != nil {
 			return fmt.Errorf("JSON export: %w", err)
 		}
@@ -198,7 +198,7 @@ func (r *Reporter) Export() error {
 		recs := make([]HitRecord, len(r.records))
 		copy(recs, r.records)
 		r.mu.RUnlock()
-		htmlPath := filepath.Join(r.outputDir, fmt.Sprintf("eroshit_report_%s.html", ts))
+		htmlPath := filepath.Join(r.outputDir, fmt.Sprintf("vgbot_report_%s.html", ts))
 		if err := NewHTMLReporter(m, recs, r.domain).GenerateReport(htmlPath); err != nil {
 			return fmt.Errorf("HTML export: %w", err)
 		}

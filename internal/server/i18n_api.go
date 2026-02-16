@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"eroshit/pkg/i18n"
+	"vgbot/pkg/i18n"
 )
 
 // handleI18N returns translations for the web UI

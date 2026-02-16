@@ -325,20 +325,20 @@ func LoadFromFile(path string) (*Config, error) {
 
 // LoadFromEnv Ortam değişkenlerinden config yükler (override için)
 func (c *Config) LoadFromEnv() {
-	if v := os.Getenv("EROSHIT_TARGET_DOMAIN"); v != "" {
+	if v := os.Getenv("VGBOT_TARGET_DOMAIN"); v != "" {
 		c.TargetDomain = v
 	}
-	if v := os.Getenv("EROSHIT_MAX_PAGES"); v != "" {
+	if v := os.Getenv("VGBOT_MAX_PAGES"); v != "" {
 		if n, err := strconv.Atoi(v); err == nil {
 			c.MaxPages = n
 		}
 	}
-	if v := os.Getenv("EROSHIT_DURATION_MINUTES"); v != "" {
+	if v := os.Getenv("VGBOT_DURATION_MINUTES"); v != "" {
 		if n, err := strconv.Atoi(v); err == nil {
 			c.DurationMinutes = n
 		}
 	}
-	if v := os.Getenv("EROSHIT_HITS_PER_MINUTE"); v != "" {
+	if v := os.Getenv("VGBOT_HITS_PER_MINUTE"); v != "" {
 		if n, err := strconv.Atoi(v); err == nil {
 			c.HitsPerMinute = n
 		}

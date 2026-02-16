@@ -10,7 +10,7 @@ import (
 	"github.com/chromedp/cdproto/network"
 	"github.com/chromedp/chromedp"
 
-	"eroshit/pkg/canvas"
+	"vgbot/pkg/canvas"
 )
 
 // ApplyToContext applies session data to a chromedp context

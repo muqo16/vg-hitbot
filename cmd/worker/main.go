@@ -12,10 +12,10 @@ import (
 	"syscall"
 	"time"
 
-	"eroshit/internal/config"
-	"eroshit/pkg/distributed"
-	"eroshit/pkg/proxy"
-	"eroshit/pkg/useragent"
+	"vgbot/internal/config"
+	"vgbot/pkg/distributed"
+	"vgbot/pkg/proxy"
+	"vgbot/pkg/useragent"
 )
 
 func main() {

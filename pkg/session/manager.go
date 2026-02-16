@@ -18,7 +18,7 @@ import (
 	"sync"
 	"time"
 
-	"eroshit/pkg/canvas"
+	"vgbot/pkg/canvas"
 )
 
 // Session represents a browser session with all persistence data

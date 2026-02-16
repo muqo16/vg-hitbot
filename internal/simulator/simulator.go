@@ -10,15 +10,15 @@ import (
 	"sync/atomic"
 	"time"
 
-	"eroshit/internal/browser"
-	"eroshit/internal/config"
-	"eroshit/internal/crawler"
-	"eroshit/internal/proxy"
-	"eroshit/internal/reporter"
-	"eroshit/pkg/analytics"
-	"eroshit/pkg/delay"
-	"eroshit/pkg/i18n"
-	"eroshit/pkg/sitemap"
+	"vgbot/internal/browser"
+	"vgbot/internal/config"
+	"vgbot/internal/crawler"
+	"vgbot/internal/proxy"
+	"vgbot/internal/reporter"
+	"vgbot/pkg/analytics"
+	"vgbot/pkg/delay"
+	"vgbot/pkg/i18n"
+	"vgbot/pkg/sitemap"
 )
 
 // visitorSlot public proxy modunda her slot: bir visitor + bir proxy; başarısız olunca visitor kapatılır, proxy havuzdan silinir
