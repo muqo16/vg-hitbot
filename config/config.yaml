@@ -1,0 +1,27 @@
+
+target_domain: "example.com"
+max_pages: 5                    # Google'da taranacak public sayfa sayısı
+duration_minutes: 1440          # Test süresi (dakika) - 1440 = 24 saat
+hits_per_minute: 35             # Dakikadaki istek sayısı (kademeli artırılabilir)
+
+# Performans optimizasyonu
+disable_images: true            # Görsel yükleme devre dışı (Colly varsayılan davranışı)
+disable_js_execution: true      # JS çalıştırma yok (Colly headless değil, sadece HTML)
+
+# Proxy (opsiyonel - etik kullanım için)
+proxy_enabled: false
+# proxy_url: "http://user:pass@proxy.example.com:8080"
+
+# Raporlama
+log_level: "info"               # debug | info | warn | error
+export_format: "both"           # csv | json | both
+output_dir: "./reports"
+
+# Advanced Session Management
+session_persistence: true       # Session'ları diske kaydet
+session_storage_path: "./sessions"  # Session kayıt dizini
+session_encryption: true        # Session şifreleme aktif
+session_ttl_hours: 168          # 7 gün TTL
+session_indexeddb_persist: true # IndexedDB persistence
+session_canvas_fingerprint: true # Canvas fingerprint kullan
+returning_visitor_rate: 30      # Returning visitor oranı (%)

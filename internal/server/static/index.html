@@ -1,0 +1,2640 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>VGBot - Advanced Traffic Bot</title>
+  <link rel="icon" href="/logo.png" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            bg: '#0a0a0b',
+            'bg-card': '#111113',
+            'bg-input': '#18181b',
+            'bg-hover': '#1c1c1f',
+            border: '#27272a',
+            'border-hover': '#3f3f46',
+            accent: '#8b5cf6',
+            'accent-hover': '#a78bfa',
+            success: '#22c55e',
+            error: '#ef4444',
+            warning: '#f59e0b',
+            info: '#3b82f6',
+          },
+          fontFamily: {
+            sans: ['Outfit', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          animation: {
+            'pulse-slow': 'pulse 2s infinite',
+            'fade-in': 'fadeIn 0.3s ease',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-image: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(139, 92, 246, 0.10), transparent);
+      background-attachment: fixed;
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #18181b;
+      border-radius: 3px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #3f3f46;
+      border-radius: 3px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #52525b;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Toggle Switch */
+    .toggle-switch {
+      position: relative;
+      width: 44px;
+      height: 24px;
+      background: #27272a;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      flex-shrink: 0;
+    }
+
+    .toggle-switch.active {
+      background: #8b5cf6;
+    }
+
+    .toggle-switch::after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 20px;
+      height: 20px;
+      background: white;
+      border-radius: 50%;
+      transition: transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    }
+
+    .toggle-switch.active::after {
+      transform: translateX(20px);
+    }
+
+    /* Tab Buttons */
+    .tab-btn {
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .tab-btn:hover {
+      background: rgba(139, 92, 246, 0.1);
+      border-color: rgba(139, 92, 246, 0.5);
+    }
+
+    .tab-btn.active {
+      background: rgba(139, 92, 246, 0.15);
+      border-color: #8b5cf6;
+      color: #8b5cf6;
+    }
+
+    /* Card Hover Effect */
+    .feature-card {
+      transition: all 0.2s ease;
+    }
+
+    .feature-card:hover {
+      border-color: #3f3f46;
+      transform: translateY(-1px);
+    }
+
+    /* Form Input Focus */
+    .form-input:focus {
+      outline: none;
+      border-color: #8b5cf6;
+      box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+    }
+
+    /* Log Area */
+    .log-area::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .log-area::-webkit-scrollbar-track {
+      background: #18181b;
+      border-radius: 3px;
+    }
+
+    .log-area::-webkit-scrollbar-thumb {
+      background: #3f3f46;
+      border-radius: 3px;
+    }
+  </style>
+</head>
+
+<body class="bg-bg text-white min-h-screen font-sans antialiased">
+
+  <!-- Language Modal -->
+  <div id="langModal" class="fixed inset-0 bg-black/90 flex items-center justify-center z-50 backdrop-blur-sm"
+    style="animation: fadeIn 0.3s ease;">
+    <div class="bg-bg-card border border-border rounded-2xl p-8 max-w-md w-full mx-4 shadow-2xl">
+      <div class="text-center mb-8">
+        <img src="/logo.png" alt="VGBot" class="w-20 h-20 rounded-xl mx-auto mb-4 border border-border">
+        <h2 class="text-2xl font-bold mb-2" data-i18n="langTitle">Dil Seçin / Select Language</h2>
+        <p class="text-zinc-500 text-sm" data-i18n="langSubtitle">Uygulama dilini seçin / Choose application language
+        </p>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <button id="btnLangTR"
+          class="py-3 px-4 bg-accent hover:bg-accent-hover text-white font-semibold rounded-xl transition-all hover:-translate-y-0.5 shadow-lg shadow-accent/20">
+          🇹🇷 Türkçe
+        </button>
+        <button id="btnLangEN"
+          class="py-3 px-4 bg-bg-input hover:bg-border text-white font-semibold rounded-xl border border-border transition-all">
+          🇬🇧 English
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main App -->
+  <div id="mainApp" class="hidden">
+
+    <!-- Header -->
+    <header class="border-b border-border bg-bg-card/50 backdrop-blur sticky top-0 z-40">
+      <div class="max-w-7xl mx-auto px-6 py-4">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-4">
+            <img src="/logo.png" alt="VGBot" class="w-12 h-12 rounded-lg border border-border">
+            <div>
+              <h1 class="text-xl font-bold tracking-tight" data-i18n="appTitle">VGBot</h1>
+              <p class="text-xs text-zinc-500" data-i18n="appSubtitle">Advanced SEO Traffic Bot</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-4">
+            <span class="text-sm text-zinc-500 font-mono">v3.0.0</span>
+            <div id="statusBadge"
+              class="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium bg-zinc-800 text-zinc-400 border border-border">
+              <span id="statusDot" class="w-2 h-2 rounded-full bg-zinc-500"></span>
+              <span id="statusText" data-i18n="statusStopped">Durduruldu</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <div class="border-b border-border bg-bg-card/30">
+      <div class="max-w-7xl mx-auto px-6">
+        <nav class="flex gap-1 overflow-x-auto py-3 no-scrollbar">
+          <button
+            class="tab-btn active px-4 py-2 text-sm font-medium rounded-lg border border-transparent text-zinc-400"
+            data-tab="dashboard">
+            <span data-i18n="tabDashboard">Dashboard</span>
+          </button>
+          <button class="tab-btn px-4 py-2 text-sm font-medium rounded-lg border border-transparent text-zinc-400"
+            data-tab="basic">
+            <span data-i18n="tabBasic">Temel</span>
+          </button>
+          <button class="tab-btn px-4 py-2 text-sm font-medium rounded-lg border border-transparent text-zinc-400"
+            data-tab="traffic">
+            <span data-i18n="tabTraffic">Trafik</span>
+          </button>
+          <button class="tab-btn px-4 py-2 text-sm font-medium rounded-lg border border-transparent text-zinc-400"
+            data-tab="seo">
+            <span data-i18n="tabSeo">SEO</span>
+          </button>
+          <button class="tab-btn px-4 py-2 text-sm font-medium rounded-lg border border-transparent text-zinc-400"
+            data-tab="advanced">
+            <span data-i18n="tabAdvanced">Gelişmiş</span>
+          </button>
+          <button class="tab-btn px-4 py-2 text-sm font-medium rounded-lg border border-transparent text-zinc-400"
+            data-tab="network">
+            <span data-i18n="tabNetwork">Network</span>
+          </button>
+          <button class="tab-btn px-4 py-2 text-sm font-medium rounded-lg border border-transparent text-zinc-400"
+            data-tab="system">
+            <span data-i18n="tabSystem">Sistem</span>
+          </button>
+          <button class="tab-btn px-4 py-2 text-sm font-medium rounded-lg border border-transparent text-zinc-400"
+            data-tab="vm">
+            <span data-i18n="tabVM">VM Spoof</span>
+          </button>
+          <button class="tab-btn px-4 py-2 text-sm font-medium rounded-lg border border-transparent text-zinc-400"
+            data-tab="proxy">
+            <span data-i18n="tabProxy">Proxy</span>
+          </button>
+          <button class="tab-btn px-4 py-2 text-sm font-medium rounded-lg border border-transparent text-zinc-400"
+            data-tab="telegram">
+            <span data-i18n="tabTelegram">📱 Telegram</span>
+          </button>
+          <button class="tab-btn px-4 py-2 text-sm font-medium rounded-lg border border-transparent text-zinc-400"
+            data-tab="logs">
+            <span data-i18n="tabLogs">Loglar</span>
+          </button>
+        </nav>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-6 py-6">
+
+      <!-- TAB: DASHBOARD -->
+      <div id="tabContentDashboard" class="tab-content space-y-6">
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div class="feature-card bg-bg-card border border-border rounded-xl p-4 text-center">
+            <div class="text-3xl font-bold text-accent" id="dashTotalHits">0</div>
+            <div class="text-xs text-zinc-500 mt-1" data-i18n="statTotalHits">Toplam Hit</div>
+          </div>
+          <div class="feature-card bg-bg-card border border-border rounded-xl p-4 text-center">
+            <div class="text-3xl font-bold text-success" id="dashSuccessRate">0%</div>
+            <div class="text-xs text-zinc-500 mt-1" data-i18n="statSuccessRate">Başarı Oranı</div>
+          </div>
+          <div class="feature-card bg-bg-card border border-border rounded-xl p-4 text-center">
+            <div class="text-3xl font-bold text-info" id="dashActiveProxies">0</div>
+            <div class="text-xs text-zinc-500 mt-1" data-i18n="statActiveProxies">Aktif Proxy</div>
+          </div>
+          <div class="feature-card bg-bg-card border border-border rounded-xl p-4 text-center">
+            <div class="text-3xl font-bold text-warning" id="dashAvgResponse">0ms</div>
+            <div class="text-xs text-zinc-500 mt-1" data-i18n="statAvgResponse">Ort. Yanıt</div>
+          </div>
+        </div>
+
+        <!-- Chart -->
+        <div class="feature-card bg-bg-card border border-border rounded-xl p-6">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-sm font-semibold text-zinc-400 uppercase tracking-wider" data-i18n="sectionTrafficChart">
+              Trafik Grafiği</h2>
+            <div class="flex gap-2">
+              <button
+                class="chart-filter active px-3 py-1 text-xs rounded-lg border border-accent/30 bg-accent/20 text-accent transition-all"
+                data-range="1h">1H</button>
+              <button
+                class="chart-filter px-3 py-1 text-xs rounded-lg border border-border bg-bg-input text-zinc-400 transition-all"
+                data-range="24h">24H</button>
+              <button
+                class="chart-filter px-3 py-1 text-xs rounded-lg border border-border bg-bg-input text-zinc-400 transition-all"
+                data-range="7d">7D</button>
+            </div>
+          </div>
+          <div class="h-64">
+            <canvas id="trafficChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Live Logs -->
+        <div class="feature-card bg-bg-card border border-border rounded-xl p-6">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-sm font-semibold text-zinc-400 uppercase tracking-wider" data-i18n="sectionLiveLogs">Canlı
+              Loglar</h2>
+            <span id="liveLogStatus" class="text-xs text-zinc-500">● Disconnected</span>
+          </div>
+          <div id="liveLogStream"
+            class="log-area h-48 bg-bg-input rounded-lg p-3 overflow-y-auto text-xs font-mono space-y-1">
+            <div class="text-zinc-600 italic" data-i18n="msgNoLogs">Log bekleniyor...</div>
+          </div>
+        </div>
+      </div>
+
+
+
+
+      <div id="tabContentBasic" class="tab-content hidden space-y-6">
+
+        <!-- Target Settings -->
+        <div class="feature-card bg-bg-card border border-border rounded-xl p-6">
+          <h2 class="text-sm font-semibold text-zinc-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+            </svg>
+            <span data-i18n="sectionTarget">Hedef Ayarları</span>
+          </h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div class="space-y-2">
+              <label class="text-sm text-zinc-300" data-i18n="labelDomain">Domain</label>
+              <input type="text" id="domain" placeholder="example.com"
+                class="form-input w-full bg-bg-input border border-border rounded-lg px-4 py-2.5 text-sm font-mono transition-all">
+            </div>
+            <div class="space-y-2">
+              <label class="text-sm text-zinc-300" data-i18n="labelGtag">GA4 Tracking ID</label>
+              <input type="text" id="gtagId" placeholder="G-XXXXXXXXXX"
+                class="form-input w-full bg-bg-input border border-border rounded-lg px-4 py-2.5 text-sm font-mono transition-all">
+            </div>
+            <div class="space-y-2">
+              <label class="text-sm text-zinc-300" data-i18n="labelOutputDir">Çıktı Dizini</label>
+              <input type="text" id="outputDir" placeholder="./reports"
+                class="form-input w-full bg-bg-input border border-border rounded-lg px-4 py-2.5 text-sm font-mono transition-all">
+            </div>
+          </div>
+        </div>
+
+        <!-- Performance Settings -->
+        <div class="feature-card bg-bg-card border border-border rounded-xl p-6">
+          <h2 class="text-sm font-semibold text-zinc-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+            <span data-i18n="sectionPerformance">Performans Ayarları</span>
+          </h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="space-y-2">
+              <label class="text-sm text-zinc-300" data-i18n="labelMaxPages">Max Sayfa</label>
+              <input type="number" id="maxPages" value="5" min="1" max="100"
+                class="form-input w-full bg-bg-input border border-border rounded-lg px-4 py-2.5 text-sm font-mono transition-all">
+            </div>
+            <div class="space-y-2">
+              <label class="text-sm text-zinc-300" data-i18n="labelDuration">Süre (dk)</label>
+              <input type="number" id="duration" value="60" min="1"
+                class="form-input w-full bg-bg-input border border-border rounded-lg px-4 py-2.5 text-sm font-mono transition-all">
+            </div>
+            <div class="space-y-2">
+              <label class="text-sm text-zinc-300" data-i18n="labelHpm">Hit/Dakika</label>
+              <input type="number" id="hpm" value="35" min="1" max="120"
+                class="form-input w-full bg-bg-input border border-border rounded-lg px-4 py-2.5 text-sm font-mono transition-all">
+            </div>
+            <div class="space-y-2">
+              <label class="text-sm text-zinc-300" data-i18n="labelMaxConcurrent">Max Eşzamanlı</label>
+              <input type="number" id="maxConcurrent" value="10" min="1" max="50"
+                class="form-input w-full bg-bg-input border border-border rounded-lg px-4 py-2.5 text-sm font-mono transition-all">
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Toggles -->
+        <div class="feature-card bg-bg-card border border-border rounded-xl p-6">
+          <h2 class="text-sm font-semibold text-zinc-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+            </svg>
+            <span data-i18n="sectionQuickToggles">Hızlı Ayarlar</span>
+          </h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+
+            <!-- Toggle: Anti-Detect -->
+            <div class="flex items-start gap-3 p-3 rounded-lg bg-bg-input/50 hover:bg-bg-input transition-colors">
+              <div class="toggle-switch active" id="toggleAntiDetect" data-input="antiDetectMode"></div>
+              <div class="flex-1 min-w-0">
+                <div class="text-sm font-medium text-zinc-200" data-i18n="toggleAntiDetectTitle">Anti-Detect Modu</div>
+                <div class="text-xs text-zinc-500 mt-0.5" data-i18n="toggleAntiDetectDesc">Bot algılama sistemlerini
+                  atlatmak için gelişmiş gizleme</div>
+              </div>
+              <input type="checkbox" id="antiDetectMode" class="hidden" checked>
+            </div>
+
+            <!-- Toggle: Canvas Fingerprint -->
+            <div class="flex items-start gap-3 p-3 rounded-lg bg-bg-input/50 hover:bg-bg-input transition-colors">
+              <div class="toggle-switch" id="toggleCanvasFp" data-input="canvasFingerprint"></div>
+              <div class="flex-1 min-w-0">
+                <div class="text-sm font-medium text-zinc-200" data-i18n="toggleCanvasFpTitle">Canvas Fingerprint</div>
+                <div class="text-xs text-zinc-500 mt-0.5" data-i18n="toggleCanvasFpDesc">Benzersiz canvas parmak izi ile
+                  gerçek tarayıcı taklidi</div>
+              </div>
+              <input type="checkbox" id="canvasFingerprint" class="hidden">
+            </div>
+
+            <!-- Toggle: Use Sitemap -->
+            <div class="flex items-start gap-3 p-3 rounded-lg bg-bg-input/50 hover:bg-bg-input transition-colors">
+              <div class="toggle-switch" id="toggleUseSitemap" data-input="useSitemap"></div>
+              <div class="flex-1 min-w-0">
+                <div class="text-sm font-medium text-zinc-200" data-i18n="toggleSitemapTitle">Sitemap Kullan</div>
+                <div class="text-xs text-zinc-500 mt-0.5" data-i18n="toggleSitemapDesc">Site haritasından URL'leri
+                  otomatik çek ve ziyaret et</div>
+              </div>
+              <input type="checkbox" id="useSitemap" class="hidden">
+            </div>
+
+            <!-- Toggle: Scroll Events -->
+            <div class="flex items-start gap-3 p-3 rounded-lg bg-bg-input/50 hover:bg-bg-input transition-colors">
+              <div class="toggle-switch active" id="toggleScrollEvent" data-input="sendScrollEvent"></div>
+              <div class="flex-1 min-w-0">
+                <div class="text-sm font-medium text-zinc-200" data-i18n="toggleScrollTitle">Scroll Eventleri</div>
+                <div class="text-xs text-zinc-500 mt-0.5" data-i18n="toggleScrollDesc">Google Analytics'e scroll
+                  derinliği eventleri gönder</div>
+              </div>
+              <input type="checkbox" id="sendScrollEvent" class="hidden" checked>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: TRAFFIC -->
+      <div id="tabContentTraffic" class="tab-content hidden space-y-6">
+
+        <!-- Device Settings -->
+        <div class="feature-card bg-bg-card border border-border rounded-xl p-6">
+          <h2 class="text-sm font-semibold text-zinc-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+            </svg>
+            <span data-i18n="sectionDevice">Cihaz Ayarları</span>
+          </h2>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="space-y-2">
+              <label class="text-sm text-zinc-300" data-i18n="labelDeviceType">Cihaz Tipi</label>
+              <select id="deviceType"
+                class="form-input w-full bg-bg-input border border-border rounded-lg px-4 py-2.5 text-sm transition-all cursor-pointer">
+                <option value="mixed" data-i18n="optDeviceMixed">Karışık (Tümü)</option>
+                <option value="desktop" data-i18n="optDeviceDesktop">Masaüstü</option>
+                <option value="mobile" data-i18n="optDeviceMobile">Mobil</option>
+                <option value="tablet" data-i18n="optDeviceTablet">Tablet</option>
+              </select>
+            </div>
+            <div class="space-y-2">
+              <label class="text-sm text-zinc-300" data-i18n="labelMinPageDuration">Min Sayfa Süresi (sn)</label>
+              <input type="number" id="minPageDuration" value="15" min="1"
+                class="form-input w-full bg-bg-input border border-border rounded-lg px-4 py-2.5 text-sm font-mono transition-all">
+            </div>
+            <div class="space-y-2">
+              <label class="text-sm text-zinc-300" data-i18n="labelMaxPageDuration">Max Sayfa Süresi (sn)</label>
+              <input type="number" id="maxPageDuration" value="120" min="1"
+                class="form-input w-full bg-bg-input border border-border rounded-lg px-4 py-2.5 text-sm font-mono transition-all">
+            </div>
+          </div>
+        </div>
+
+        <!-- Behavior Toggles -->
+        <div class="feature-card bg-bg-card border border-border rounded-xl p-6">
+          <h2 class="text-sm font-semibold text-zinc-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" />
+            </svg>
+            <span data-i18n="sectionBehavior">Davranış Simülasyonu</span>
+          </h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+
+            <!-- Toggle: Mouse Move -->
+            <div class="flex items-start gap-3 p-3 rounded-lg bg-bg-input/50 hover:bg-bg-input transition-colors">
+              <div class="toggle-switch active" id="toggleMouseMove" data-input="simulateMouseMove"></div>
+              <div class="flex-1 min-w-0">
+                <div class="text-sm font-medium text-zinc-200" data-i18n="toggleMouseTitle">Mouse Hareketi</div>
+                <div class="text-xs text-zinc-500 mt-0.5" data-i18n="toggleMouseDesc">İnsan benzeri mouse hareketleri ve
+                  hover efektleri</div>
+              </div>
+              <input type="checkbox" id="simulateMouseMove" class="hidden" checked>
+            </div>
+
+            <!-- Toggle: Clicks -->
+            <div class="flex items-start gap-3 p-3 rounded-lg bg-bg-input/50 hover:bg-bg-input transition-colors">
+              <div class="toggle-switch active" id="toggleClicks" data-input="simulateClicks"></div>
+              <div class="flex-1 min-w-0">
+                <div class="text-sm font-medium text-zinc-200" data-i18n="toggleClicksTitle">Tıklama Simülasyonu</div>
+                <div class="text-xs text-zinc-500 mt-0.5" data-i18n="toggleClicksDesc">Rastgele bağlantılara tıklayarak
+                  gezinti davranışı</div>
+              </div>
+              <input type="checkbox" id="simulateClicks" class="hidden" checked>
+            </div>
+
+            <!-- Toggle: Keyboard -->
+            <div class="flex items-start gap-3 p-3 rounded-lg bg-bg-input/50 hover:bg-bg-input transition-colors">
+              <div class="toggle-switch" id="toggleKeyboard" data-input="simulateKeyboard"></div>
+              <div class="flex-1 min-w-0">
+                <div class="text-sm font-medium text-zinc-200" data-i18n="toggleKeyboardTitle">Klavye Simülasyonu</div>
+                <div class="text-xs text-zinc-500 mt-0.5" data-i18n="toggleKeyboardDesc">Form alanlarına yazma ve klavye
+                  eventleri</div>
+              </div>
+              <input type="checkbox" id="simulateKeyboard" class="hidden">
+            </div>
+
+            <!-- Toggle: Focus -->
+            <div class="flex items-start gap-3 p-3 rounded-lg bg-bg-input/50 hover:bg-bg-input transition-colors">
+              <div class="toggle-switch active" id="toggleFocus" data-input="simulateFocus"></div>
+              <div class="flex-1 min-w-0">
+                <div class="text-sm font-medium text-zinc-200" data-i18n="toggleFocusTitle">Focus/Blur Eventleri</div>
+                <div class="text-xs text-zinc-500 mt-0.5" data-i18n="toggleFocusDesc">Sekme değişimi ve pencere
+                  focus/blur simülasyonu</div>
+              </div>
+              <input type="checkbox" id="simulateFocus" class="hidden" checked>
+            </div>
+
+            <!-- Toggle: Session Depth -->
+            <div class="flex items-start gap-3 p-3 rounded-lg bg-bg-input/50 hover:bg-bg-input transition-colors">
+              <div class="toggle-switch active" id="toggleSessionDepth" data-input="enableSessionDepth"></div>
+              <div class="flex-1 min-w-0">
+                <div class="text-sm font-medium text-zinc-200" data-i18n="toggleSessionDepthTitle">Session Depth</div>
+                <div class="text-xs text-zinc-500 mt-0.5" data-i18n="toggleSessionDepthDesc">Oturum başına birden fazla
+                  sayfa ziyareti</div>
+              </div>
+              <input type="checkbox" id="enableSessionDepth" class="hidden" checked>
+            </div>
+
+            <!-- Toggle: Bounce Control -->
+            <div class="flex items-start gap-3 p-3 rounded-lg bg-bg-input/50 hover:bg-bg-input transition-colors">
+              <div class="toggle-switch active" id="toggleBounceControl" data-input="enableBounceControl"></div>
+              <div class="flex-1 min-w-0">
+                <div class="text-sm font-medium text-zinc-200" data-i18n="toggleBounceTitle">Bounce Rate Kontrolü</div>
+                <div class="text-xs text-zinc-500 mt-0.5" data-i18n="toggleBounceDesc">Hedef bounce rate'e göre oturum
+                  davranışı ayarı</div>
+              </div>
+              <input type="checkbox" id="enableBounceControl" class="hidden" checked>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Bounce Rate Settings -->
+        <div class="feature-card bg-bg-card border border-border rounded-xl p-6">
+          <h2 class="text-sm font-semibold text-zinc-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            </svg>
+            <span data-i18n="sectionBounceSettings">Bounce Rate Ayarları</span>
+          </h2>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="space-y-2">
+              <label class="text-sm text-zinc-300" data-i18n="labelTargetBounceRate">Hedef Bounce Rate (%)</label>
+              <input type="number" id="targetBounceRate" value="35" min="0" max="100"
+                class="form-input w-full bg-bg-input border border-border rounded-lg px-4 py-2.5 text-sm font-mono transition-all">
+              <p class="text-xs text-zinc-500" data-i18n="hintBounceRate">Düşük bounce rate için ziyaretçiler birden
+                fazla sayfa gezer</p>
+            </div>
+            <div class="space-y-2">
+              <label class="text-sm text-zinc-300" data-i18n="labelSessionMinPages">Min Sayfa/Oturum</label>
+              <input type="number" id="sessionMinPages" value="2" min="1"
+                class="form-input w-full bg-bg-input border border-border rounded-lg px-4 py-2.5 text-sm font-mono transition-all">
+            </div>
+            <div class="space-y-2">
+              <label class="text-sm text-zinc-300" data-i18n="labelSessionMaxPages">Max Sayfa/Oturum</label>
+              <input type="number" id="sessionMaxPages" value="5" min="1"
+                class="form-input w-full bg-bg-input border border-border rounded-lg px-4 py-2.5 text-sm font-mono transition-all">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: SEO -->
+      <div id="tabContentSeo" class="tab-content hidden space-y-6">
+
+        <!-- Referrer Settings -->
+        <div class="feature-card bg-bg-card border border-border rounded-xl p-6">
+          <h2 class="text-sm font-semibold text-zinc-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+            </svg>
+            <span data-i18n="sectionReferrer">Referrer Ayarları</span>
+          </h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div class="space-y-2">
+              <label class="text-sm text-zinc-300" data-i18n="labelReferrerSource">Referrer Kaynağı</label>
+              <select id="referrerSource"
+                class="form-input w-full bg-bg-input border border-border rounded-lg px-4 py-2.5 text-sm transition-all cursor-pointer">
+                <option value="google">Google</option>
+                <option value="bing">Bing</option>
+                <option value="yahoo">Yahoo</option>
+                <option value="duckduckgo">DuckDuckGo</option>
+                <option value="mixed" data-i18n="optMixed">Karışık</option>
+                <option value="direct" data-i18n="optDirect">Direkt</option>
+              </select>
+            </div>
+            <div class="space-y-2">
+              <label class="text-sm text-zinc-300" data-i18n="labelReferrerKeyword">Anahtar Kelime</label>
+              <input type="text" id="referrerKeyword" placeholder="örnek anahtar kelime"
+                class="form-input w-full bg-bg-input border border-border rounded-lg px-4 py-2.5 text-sm font-mono transition-all">
+              <p class="text-xs text-zinc-500" data-i18n="hintReferrerKeyword">Bu kelime ile Google'dan gelmiş gibi
+                görünür</p>
+            </div>
+          </div>
+          <div
+            class="flex items-start gap-3 p-3 rounded-lg bg-bg-input/50 hover:bg-bg-input transition-colors inline-flex">
+            <div class="toggle-switch" id="toggleReferrer" data-input="referrerEnabled"></div>
+            <div class="flex-1 min-w-0">
+              <div class="text-sm font-medium text-zinc-200" data-i18n="toggleReferrerTitle">Referrer Simülasyonu</div>
+              <div class="text-xs text-zinc-500 mt-0.5" data-i18n="toggleReferrerDesc">Organik trafik gibi görünmesi
+                için referrer bilgisi ekle</div>
+            </div>
+            <input type="checkbox" id="referrerEnabled" class="hidden">
+          </div>
+        </div>
+
+        <!-- Keywords & Geo -->
+        <div class="feature-card bg-bg-card border border-border rounded-xl p-6">
+          <h2 class="text-sm font-semibold text-zinc-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+            </svg>
+            <span data-i18n="sectionKeywordsGeo">Anahtar Kelimeler & Konum</span>
+          </h2>
+          <div class="space-y-4">
+            <div class="space-y-2">
+              <label class="text-sm text-zinc-300" data-i18n="labelKeywords">Anahtar Kelimeler (virgülle ayırın)</label>
+              <textarea id="keywords" rows="3" placeholder="target keyword, long tail keyword, brand name"
+                class="form-input w-full bg-bg-input border border-border rounded-lg px-4 py-2.5 text-sm font-mono transition-all resize-y min-h-[80px]"></textarea>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div class="space-y-2">
+                <label class="text-sm text-zinc-300" data-i18n="labelGeoCountry">Ülke</label>
+                <select id="geoCountry"
+                  class="form-input w-full bg-bg-input border border-border rounded-lg px-4 py-2.5 text-sm transition-all cursor-pointer">
+                  <option value="" data-i18n="optRandom">Rastgele</option>
+                  <option value="TR">🇹🇷 Türkiye</option>
+                  <option value="US">🇺🇸 ABD</option>
+                  <option value="GB">🇬🇧 İngiltere</option>
+                  <option value="DE">🇩🇪 Almanya</option>
+                  <option value="FR">🇫🇷 Fransa</option>
+                  <option value="NL">🇳🇱 Hollanda</option>
+                  <option value="RU">🇷🇺 Rusya</option>
+                  <option value="JP">🇯🇵 Japonya</option>
+                  <option value="BR">🇧🇷 Brezilya</option>
+                </select>
+              </div>
+              <div class="space-y-2">
+                <label class="text-sm text-zinc-300" data-i18n="labelGeoLanguage">Dil</label>
+                <select id="geoLanguage"
+                  class="form-input w-full bg-bg-input border border-border rounded-lg px-4 py-2.5 text-sm transition-all cursor-pointer">
+                  <option value="" data-i18n="optAuto">Otomatik</option>
+                  <option value="tr-TR">🇹🇷 Türkçe</option>
+                  <option value="en-US">🇺🇸 English</option>
+                  <option value="de-DE">🇩🇪 Deutsch</option>
+                  <option value="fr-FR">🇫🇷 Français</option>
+                  <option value="es-ES">🇪🇸 Español</option>
+                </select>
+              </div>
+              <div class="space-y-2">
+                <label class="text-sm text-zinc-300" data-i18n="labelGeoTimezone">Saat Dilimi</label>
+                <select id="geoTimezone"
+                  class="form-input w-full bg-bg-input border border-border rounded-lg px-4 py-2.5 text-sm transition-all cursor-pointer">
+                  <option value="" data-i18n="optAuto">Otomatik</option>
+                  <option value="Europe/Istanbul">Europe/Istanbul (UTC+3)</option>
+                  <option value="America/New_York">America/New_York (UTC-5)</option>
+                  <option value="Europe/London">Europe/London (UTC+0)</option>
+                  <option value="Europe/Berlin">Europe/Berlin (UTC+1)</option>
+                  <option value="Asia/Tokyo">Asia/Tokyo (UTC+9)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Analytics Toggles -->
+        <div class="feature-card bg-bg-card border border-border rounded-xl p-6">
+          <h2 class="text-sm font-semibold text-zinc-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            </svg>
+            <span data-i18n="sectionAnalytics">Analytics Eventleri</span>
+          </h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+
+            <!-- Toggle: Page View -->
+            <div class="flex items-start gap-3 p-3 rounded-lg bg-bg-input/50 hover:bg-bg-input transition-colors">
+              <div class="toggle-switch active" id="togglePageView" data-input="sendPageView"></div>
+              <div class="flex-1 min-w-0">
+                <div class="text-sm font-medium text-zinc-200">Page View</div>
+                <div class="text-xs text-zinc-500 mt-0.5" data-i18n="togglePageViewDesc">Her sayfa yüklemesinde GA4
+                  page_view eventi gönder</div>
+              </div>
+              <input type="checkbox" id="sendPageView" class="hidden" checked>
+            </div>
+
+            <!-- Toggle: Session Start -->
+            <div class="flex items-start gap-3 p-3 rounded-lg bg-bg-input/50 hover:bg-bg-input transition-colors">
+              <div class="toggle-switch active" id="toggleSessionStart" data-input="sendSessionStart"></div>
+              <div class="flex-1 min-w-0">
+                <div class="text-sm font-medium text-zinc-200">Session Start</div>
+                <div class="text-xs text-zinc-500 mt-0.5" data-i18n="toggleSessionStartDesc">Yeni oturum başlatıldığında
+                  session_start eventi</div>
+              </div>
+              <input type="checkbox" id="sendSessionStart" class="hidden" checked>
+            </div>
+
+            <!-- Toggle: User Engagement -->
+            <div class="flex items-start gap-3 p-3 rounded-lg bg-bg-input/50 hover:bg-bg-input transition-colors">
+              <div class="toggle-switch active" id="toggleUserEngagement" data-input="sendUserEngagement"></div>
+              <div class="flex-1 min-w-0">
+                <div class="text-sm font-medium text-zinc-200">User Engagement</div>
+                <div class="text-xs text-zinc-500 mt-0.5" data-i18n="toggleEngagementDesc">Kullanıcı etkileşimini ölçen
+                  engagement eventleri</div>
+              </div>
+              <input type="checkbox" id="sendUserEngagement" class="hidden" checked>
+            </div>
+
+            <!-- Toggle: First Visit -->
+            <div class="flex items-start gap-3 p-3 rounded-lg bg-bg-input/50 hover:bg-bg-input transition-colors">
+              <div class="toggle-switch active" id="toggleFirstVisit" data-input="sendFirstVisit"></div>
+              <div class="flex-1 min-w-0">
+                <div class="text-sm font-medium text-zinc-200">First Visit</div>
+                <div class="text-xs text-zinc-500 mt-0.5" data-i18n="toggleFirstVisitDesc">İlk ziyaret için first_visit
+                  eventi</div>
+              </div>
+              <input type="checkbox" id="sendFirstVisit" class="hidden" checked>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: ADVANCED -->
+      <div id="tabContentAdvanced" class="tab-content hidden space-y-6">
+
+        <!-- GSC Integration -->
+        <div class="feature-card bg-bg-card border border-border rounded-xl p-6">
+          <h2 class="text-sm font-semibold text-zinc-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <span data-i18n="sectionGSC">Google Search Console</span>
+          </h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div class="space-y-2">
+              <label class="text-sm text-zinc-300" data-i18n="labelGscProperty">GSC Property URL</label>
+              <input type="text" id="gscPropertyUrl" placeholder="https://example.com"
+                class="form-input w-full bg-bg-input border border-border rounded-lg px-4 py-2.5 text-sm font-mono transition-all">
+            </div>
+            <div class="space-y-2">
+              <label class="text-sm text-zinc-300" data-i18n="labelGscApiKey">Service Account JSON</label>
+              <textarea id="gscApiKey" rows="3" placeholder='{"type": "service_account", ...}'
+                class="form-input w-full bg-bg-input border border-border rounded-lg px-4 py-2.5 text-xs font-mono transition-all resize-y min-h-[80px]"></textarea>
+              <p class="text-xs text-zinc-500" data-i18n="hintGscApiKey">Google Cloud Console'dan alınan JSON key</p>
+            </div>
+          </div>
+          <div class="flex flex-wrap gap-3">
+            <div class="flex items-start gap-3 p-3 rounded-lg bg-bg-input/50 hover:bg-bg-input transition-colors">
+              <div class="toggle-switch" id="toggleGscIntegration" data-input="enableGscIntegration"></div>
+              <div class="flex-1 min-w-0">
+                <div class="text-sm font-medium text-zinc-200" data-i18n="toggleGscTitle">GSC Entegrasyonu</div>
+                <div class="text-xs text-zinc-500 mt-0.5" data-i18n="toggleGscDesc">Gerçek arama sorgularını çek ve
+                  simüle et</div>
+              </div>
+              <input type="checkbox" id="enableGscIntegration" class="hidden">
+            </div>
+            <div class="flex items-start gap-3 p-3 rounded-lg bg-bg-input/50 hover:bg-bg-input transition-colors">
+              <div class="toggle-switch" id="toggleGscQueries" data-input="useGscQueries"></div>
+              <div class="flex-1 min-w-0">
+                <div class="text-sm font-medium text-zinc-200" data-i18n="toggleGscQueriesTitle">Sorguları Kullan</div>
+                <div class="text-xs text-zinc-500 mt-0.5" data-i18n="toggleGscQueriesDesc">GSC'den çekilen sorguları
+                  anahtar kelime olarak kullan</div>
+              </div>
+              <input type="checkbox" id="useGscQueries" class="hidden">
+            </div>
+          </div>
+        </div>
+
+        <!-- Browser Profile -->
+        <div class="feature-card bg-bg-card border border-border rounded-xl p-6">
+          <h2 class="text-sm font-semibold text-zinc-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+            </svg>
+            <span data-i18n="sectionBrowserProfile">Browser Profilleri</span>
+          </h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div class="space-y-2">
+              <label class="text-sm text-zinc-300" data-i18n="labelProfilePath">Profil Dizini</label>
+              <input type="text" id="browserProfilePath" placeholder="./profiles"
+                class="form-input w-full bg-bg-input border border-border rounded-lg px-4 py-2.5 text-sm font-mono transition-all">
+            </div>
+            <div class="space-y-2">
+              <label class="text-sm text-zinc-300" data-i18n="labelMaxProfiles">Max Profil Sayısı</label>
+              <input type="number" id="maxBrowserProfiles" value="100" min="1" max="1000"
+                class="form-input w-full bg-bg-input border border-border rounded-lg px-4 py-2.5 text-sm font-mono transition-all">
+            </div>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div class="flex items-start gap-3 p-3 rounded-lg bg-bg-input/50 hover:bg-bg-input transition-colors">
+              <div class="toggle-switch" id="toggleBrowserProfile" data-input="enableBrowserProfile"></div>
+              <div class="flex-1 min-w-0">
+                <div class="text-sm font-medium text-zinc-200" data-i18n="toggleProfileTitle">Profil Persistence</div>
+                <div class="text-xs text-zinc-500 mt-0.5" data-i18n="toggleProfileDesc">Tarayıcı profillerini kaydet ve
+                  returning visitor simüle et</div>
+              </div>
+              <input type="checkbox" id="enableBrowserProfile" class="hidden">
+            </div>
+            <div class="flex items-start gap-3 p-3 rounded-lg bg-bg-input/50 hover:bg-bg-input transition-colors">
+              <div class="toggle-switch active" id="togglePersistCookies" data-input="persistCookies"></div>
+              <div class="flex-1 min-w-0">
+                <div class="text-sm font-medium text-zinc-200" data-i18n="toggleCookiesTitle">Cookie'leri Kaydet</div>
+                <div class="text-xs text-zinc-500 mt-0.5" data-i18n="toggleCookiesDesc">Oturumlar arası cookie
+                  persistence</div>
+              </div>
+              <input type="checkbox" id="persistCookies" class="hidden" checked>
+            </div>
+          </div>
+        </div>
+
+        <!-- Returning Visitor -->
+        <div class="feature-card bg-bg-card border border-border rounded-xl p-6">
+          <h2 class="text-sm font-semibold text-zinc-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            <span data-i18n="sectionReturning">Returning Visitor</span>
+          </h2>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+            <div class="space-y-2">
+              <label class="text-sm text-zinc-300" data-i18n="labelReturningRate">Returning Rate (%)</label>
+              <input type="number" id="returningVisitorRate" value="30" min="0" max="100"
+                class="form-input w-full bg-bg-input border border-border rounded-lg px-4 py-2.5 text-sm font-mono transition-all">
+            </div>
+            <div class="space-y-2">
+              <label class="text-sm text-zinc-300" data-i18n="labelReturningDays">Tekrar Ziyaret (gün)</label>
+              <input type="number" id="returningVisitorDays" value="7" min="1" max="90"
+                class="form-input w-full bg-bg-input border border-border rounded-lg px-4 py-2.5 text-sm font-mono transition-all">
+            </div>
+            <div class="flex items-end">
+              <div
+                class="flex items-start gap-3 p-3 rounded-lg bg-bg-input/50 hover:bg-bg-input transition-colors w-full">
+                <div class="toggle-switch active" id="toggleReturningVisitor" data-input="enableReturningVisitor"></div>
+                <div class="flex-1 min-w-0">
+                  <div class="text-sm font-medium text-zinc-200" data-i18n="toggleReturningTitle">Returning Visitor
+                  </div>
+                  <div class="text-xs text-zinc-500 mt-0.5" data-i18n="toggleReturningDesc">Aynı client_id ile tekrar
+                    ziyaretler</div>
+                </div>
+                <input type="checkbox" id="enableReturningVisitor" class="hidden" checked>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: NETWORK -->
+      <div id="tabContentNetwork" class="tab-content hidden space-y-6">
+
+        <div class="feature-card bg-bg-card border border-border rounded-xl p-6">
+          <h2 class="text-sm font-semibold text-zinc-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span data-i18n="sectionNetworkOptimizations">Network Optimizasyonları</span>
+          </h2>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+            <!-- HTTP/3 QUIC -->
+            <div
+              class="flex items-start gap-3 p-4 rounded-lg bg-bg-input/50 hover:bg-bg-input transition-colors border border-transparent hover:border-border">
+              <div class="toggle-switch" id="toggleHTTP3" data-input="enableHTTP3"></div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2">
+                  <span class="text-sm font-medium text-zinc-200" data-i18n="toggleHTTP3Title">HTTP/3 QUIC</span>
+                  <span class="px-1.5 py-0.5 text-[10px] bg-accent/20 text-accent rounded">BETA</span>
+                </div>
+                <div class="text-xs text-zinc-500 mt-1 leading-relaxed" data-i18n="toggleHTTP3Desc">Google tarafından
+                  geliştirilen yeni nesil protokol. Daha hızlı bağlantı kurulumu ve çoklu stream desteği ile performans
+                  artışı sağlar.</div>
+                <div class="flex items-center gap-2 mt-2">
+                  <span class="text-[10px] px-2 py-0.5 bg-yellow-500/10 text-yellow-500 rounded">CGO gerekli</span>
+                  <span class="text-[10px] px-2 py-0.5 bg-blue-500/10 text-blue-500 rounded">Linux/Mac</span>
+                </div>
+              </div>
+              <input type="checkbox" id="enableHTTP3" class="hidden">
+            </div>
+
+            <!-- Connection Pooling -->
+            <div
+              class="flex items-start gap-3 p-4 rounded-lg bg-bg-input/50 hover:bg-bg-input transition-colors border border-transparent hover:border-border">
+              <div class="toggle-switch active" id="toggleConnectionPool" data-input="enableConnectionPool"></div>
+              <div class="flex-1 min-w-0">
+                <div class="text-sm font-medium text-zinc-200" data-i18n="toggleConnPoolTitle">Connection Pooling</div>
+                <div class="text-xs text-zinc-500 mt-1 leading-relaxed" data-i18n="toggleConnPoolDesc">Bağlantıları
+                  yeniden kullanarak TCP el sıkışma süresinden tasarruf et. HTTP/2 ve Keep-Alive desteği ile %40+
+                  performans artışı.</div>
+              </div>
+              <input type="checkbox" id="enableConnectionPool" class="hidden" checked>
+            </div>
+
+            <!-- TCP Fast Open -->
+            <div
+              class="flex items-start gap-3 p-4 rounded-lg bg-bg-input/50 hover:bg-bg-input transition-colors border border-transparent hover:border-border">
+              <div class="toggle-switch" id="toggleTCPFastOpen" data-input="enableTCPFastOpen"></div>
+              <div class="flex-1 min-w-0">
+                <div class="text-sm font-medium text-zinc-200" data-i18n="toggleTCPTitle">TCP Fast Open</div>
+                <div class="text-xs text-zinc-500 mt-1 leading-relaxed" data-i18n="toggleTCPDesc">SYN paketinde data
+                  göndererek 1-RTT tasarrufu sağlar. Yüksek gecikmeli bağlantılarda bağlantı süresini %30-50 azaltır.
+                </div>
+                <div class="flex items-center gap-2 mt-2">
+                  <span class="text-[10px] px-2 py-0.5 bg-green-500/10 text-green-500 rounded">Linux</span>
+                </div>
+              </div>
+              <input type="checkbox" id="enableTCPFastOpen" class="hidden">
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Connection Pool Settings -->
+        <div class="feature-card bg-bg-card border border-border rounded-xl p-6">
+          <h2 class="text-sm font-semibold text-zinc-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+            </svg>
+            <span data-i18n="sectionConnPoolSettings">Connection Pool Ayarları</span>
+          </h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="space-y-2">
+              <label class="text-sm text-zinc-300" data-i18n="labelMaxIdleConns">Max Idle Connections</label>
+              <input type="number" id="maxIdleConns" value="100" min="10"
+                class="form-input w-full bg-bg-input border border-border rounded-lg px-4 py-2.5 text-sm font-mono transition-all">
+              <p class="text-xs text-zinc-500" data-i18n="hintMaxIdleConns">Beklemede tutulacak max bağlantı sayısı</p>
+            </div>
+            <div class="space-y-2">
+              <label class="text-sm text-zinc-300" data-i18n="labelMaxConnsPerHost">Max Conns Per Host</label>
+              <input type="number" id="maxConnsPerHost" value="10" min="1"
+                class="form-input w-full bg-bg-input border border-border rounded-lg px-4 py-2.5 text-sm font-mono transition-all">
+              <p class="text-xs text-zinc-500" data-i18n="hintMaxConnsPerHost">Her host için max eşzamanlı bağlantı</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: SYSTEM -->
+      <div id="tabContentSystem" class="tab-content hidden space-y-6">
+
+        <div class="feature-card bg-bg-card border border-border rounded-xl p-6">
+          <h2 class="text-sm font-semibold text-zinc-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
+            </svg>
+            <span data-i18n="sectionSystemOptimizations">Sistem Optimizasyonları</span>
+          </h2>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+            <!-- CPU Affinity -->
+            <div
+              class="flex items-start gap-3 p-4 rounded-lg bg-bg-input/50 hover:bg-bg-input transition-colors border border-transparent hover:border-border">
+              <div class="toggle-switch" id="toggleCPUAffinity" data-input="enableCPUAffinity"></div>
+              <div class="flex-1 min-w-0">
+                <div class="text-sm font-medium text-zinc-200" data-i18n="toggleAffinityTitle">CPU Affinity</div>
+                <div class="text-xs text-zinc-500 mt-1 leading-relaxed" data-i18n="toggleAffinityDesc">Her thread'i
+                  belirli bir CPU çekirdeğine sabitleyerek cache verimliliğini artır ve context switch'i azalt. Yüksek
+                  yükte %15-25 performans kazancı.</div>
+                <div class="flex items-center gap-2 mt-2">
+                  <span class="text-[10px] px-2 py-0.5 bg-green-500/10 text-green-500 rounded">Cross-Platform</span>
+                </div>
+              </div>
+              <input type="checkbox" id="enableCPUAffinity" class="hidden">
+            </div>
+
+            <!-- NUMA Awareness -->
+            <div
+              class="flex items-start gap-3 p-4 rounded-lg bg-bg-input/50 hover:bg-bg-input transition-colors border border-transparent hover:border-border">
+              <div class="toggle-switch" id="toggleNUMA" data-input="enableNUMA"></div>
+              <div class="flex-1 min-w-0">
+                <div class="text-sm font-medium text-zinc-200" data-i18n="toggleNUMATitle">NUMA Awareness</div>
+                <div class="text-xs text-zinc-500 mt-1 leading-relaxed" data-i18n="toggleNUMADesc">Non-Uniform Memory
+                  Access optimizasyonu. Thread'leri local NUMA node'a yerleştirerek memory latency'sini azalt ve bant
+                  genişliğini artır.</div>
+                <div class="flex items-center gap-2 mt-2">
+                  <span class="text-[10px] px-2 py-0.5 bg-blue-500/10 text-blue-500 rounded">Windows Server</span>
+                  <span class="text-[10px] px-2 py-0.5 bg-purple-500/10 text-purple-500 rounded">Linux</span>
+                </div>
+              </div>
+              <input type="checkbox" id="enableNUMA" class="hidden">
+            </div>
+
+          </div>
+        </div>
+
+        <!-- System Info -->
+        <div class="feature-card bg-bg-card border border-border rounded-xl p-6">
+          <h2 class="text-sm font-semibold text-zinc-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            </svg>
+            <span data-i18n="sectionSystemInfo">Sistem Bilgisi</span>
+          </h2>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="p-4 bg-bg-input/50 rounded-lg text-center">
+              <div class="text-2xl font-bold text-accent" id="sysCpuCount">—</div>
+              <div class="text-xs text-zinc-500 mt-1" data-i18n="labelCpuCount">CPU Çekirdek</div>
+            </div>
+            <div class="p-4 bg-bg-input/50 rounded-lg text-center">
+              <div class="text-2xl font-bold text-info" id="sysNumaNodes">—</div>
+              <div class="text-xs text-zinc-500 mt-1" data-i18n="labelNumaNodes">NUMA Node</div>
+            </div>
+            <div class="p-4 bg-bg-input/50 rounded-lg text-center">
+              <div class="text-2xl font-bold text-success" id="sysAffinityStatus">—</div>
+              <div class="text-xs text-zinc-500 mt-1" data-i18n="labelAffinityStatus">Affinity</div>
+            </div>
+            <div class="p-4 bg-bg-input/50 rounded-lg text-center">
+              <div class="text-2xl font-bold text-warning" id="sysNumaStatus">—</div>
+              <div class="text-xs text-zinc-500 mt-1" data-i18n="labelNumaStatus">NUMA</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: VM SPOOF -->
+      <div id="tabContentVm" class="tab-content hidden space-y-6">
+
+        <div class="feature-card bg-bg-card border border-border rounded-xl p-6">
+          <h2 class="text-sm font-semibold text-zinc-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            </svg>
+            <span data-i18n="sectionVMSpoofing">VM Fingerprint Spoofing</span>
+          </h2>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+
+            <!-- Enable VM Spoofing -->
+            <div
+              class="flex items-start gap-3 p-4 rounded-lg bg-bg-input/50 hover:bg-bg-input transition-colors border border-transparent hover:border-border">
+              <div class="toggle-switch" id="toggleVMSpoofing" data-input="enableVMSpoofing"></div>
+              <div class="flex-1 min-w-0">
+                <div class="text-sm font-medium text-zinc-200" data-i18n="toggleVMSpoofTitle">VM Spoofing Aktif</div>
+                <div class="text-xs text-zinc-500 mt-1 leading-relaxed" data-i18n="toggleVMSpoofDesc">Sanal makine
+                  ortamının izlerini gizle ve gerçek donanım gibi görün. VM detection scriptlerini atlatır.</div>
+              </div>
+              <input type="checkbox" id="enableVMSpoofing" class="hidden">
+            </div>
+
+            <!-- Hide VM Indicators -->
+            <div
+              class="flex items-start gap-3 p-4 rounded-lg bg-bg-input/50 hover:bg-bg-input transition-colors border border-transparent hover:border-border">
+              <div class="toggle-switch" id="toggleHideVM" data-input="hideVMIndicators"></div>
+              <div class="flex-1 min-w-0">
+                <div class="text-sm font-medium text-zinc-200" data-i18n="toggleHideVMTitle">VM Göstergelerini Gizle
+                </div>
+                <div class="text-xs text-zinc-500 mt-1 leading-relaxed" data-i18n="toggleHideVMDesc">window.VM,
+                  navigator.deviceMemory gibi VM belirteçlerini temizle veya sahte değerler ata.</div>
+              </div>
+              <input type="checkbox" id="hideVMIndicators" class="hidden">
+            </div>
+
+            <!-- Spoof Hardware IDs -->
+            <div
+              class="flex items-start gap-3 p-4 rounded-lg bg-bg-input/50 hover:bg-bg-input transition-colors border border-transparent hover:border-border">
+              <div class="toggle-switch" id="toggleSpoofHardware" data-input="spoofHardwareIDs"></div>
+              <div class="flex-1 min-w-0">
+                <div class="text-sm font-medium text-zinc-200" data-i18n="toggleHardwareTitle">Hardware ID Spoofing
+                </div>
+                <div class="text-xs text-zinc-500 mt-1 leading-relaxed" data-i18n="toggleHardwareDesc">CPU ID, MAC
+                  adresi, BIOS seri numarası gibi hardware tanımlayıcıları rastgele veya belirli bir VM tipine göre
+                  değiştir.</div>
+              </div>
+              <input type="checkbox" id="spoofHardwareIDs" class="hidden">
+            </div>
+
+            <!-- Randomize VM Params -->
+            <div
+              class="flex items-start gap-3 p-4 rounded-lg bg-bg-input/50 hover:bg-bg-input transition-colors border border-transparent hover:border-border">
+              <div class="toggle-switch" id="toggleRandomizeVM" data-input="randomizeVMParams"></div>
+              <div class="flex-1 min-w-0">
+                <div class="text-sm font-medium text-zinc-200" data-i18n="toggleRandomizeTitle">Rastgele VM
+                  Parametreleri</div>
+                <div class="text-xs text-zinc-500 mt-1 leading-relaxed" data-i18n="toggleRandomizeDesc">Her oturumda
+                  farklı VM parametreleri üreterek fingerprint çeşitliliği sağla ve izlenmeyi zorlaştır.</div>
+              </div>
+              <input type="checkbox" id="randomizeVMParams" class="hidden">
+            </div>
+
+          </div>
+
+          <!-- VM Type Selection -->
+          <div class="space-y-2">
+            <label class="text-sm text-zinc-300" data-i18n="labelVMType">VM Tipi</label>
+            <select id="vmType"
+              class="form-input w-full bg-bg-input border border-border rounded-lg px-4 py-2.5 text-sm transition-all cursor-pointer">
+              <option value="" data-i18n="optNone">Otomatik / Yok</option>
+              <option value="virtualbox">Oracle VirtualBox</option>
+              <option value="vmware">VMware Workstation</option>
+              <option value="parallels">Parallels Desktop</option>
+              <option value="hyperv">Microsoft Hyper-V</option>
+              <option value="kvm">KVM/QEMU</option>
+            </select>
+            <p class="text-xs text-zinc-500" data-i18n="hintVMType">Belirli bir VM tipini taklit et (boş bırakılırsa
+              rastgele)</p>
+          </div>
+        </div>
+
+        <!-- VM Detection Score -->
+        <div class="feature-card bg-bg-card border border-border rounded-xl p-6">
+          <h2 class="text-sm font-semibold text-zinc-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span data-i18n="sectionVMScore">VM Tespit Skoru</span>
+          </h2>
+          <div class="space-y-3">
+            <div class="flex justify-between text-sm">
+              <span class="text-zinc-400" data-i18n="labelVMDetectionScore">Tespit Olasılığı</span>
+              <span id="vmScoreValue" class="font-mono text-zinc-200">—</span>
+            </div>
+            <div class="h-2 bg-bg-input rounded-full overflow-hidden">
+              <div id="vmScoreBar"
+                class="h-full bg-gradient-to-r from-green-500 via-yellow-500 to-red-500 w-0 transition-all duration-500">
+              </div>
+            </div>
+            <p class="text-xs text-zinc-500" data-i18n="hintVMScore">Düşük skor = Daha az tespit. VM spoofing aktif
+              edildiğinde skor düşer.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: PROXY -->
+      <div id="tabContentProxy" class="tab-content hidden space-y-6">
+        <div class="feature-card bg-bg-card border border-border rounded-xl p-6">
+          <h2 class="text-sm font-semibold text-zinc-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+            </svg>
+            <span data-i18n="sectionProxy">Proxy Ayarları</span>
+          </h2>
+
+          <!-- Proxy Toggle -->
+          <div
+            class="flex items-start gap-3 p-4 rounded-lg bg-bg-input/50 hover:bg-bg-input transition-colors border border-transparent hover:border-border mb-4">
+            <div class="toggle-switch" id="toggleProxy" data-input="useProxy"></div>
+            <div class="flex-1 min-w-0">
+              <div class="text-sm font-medium text-zinc-200" data-i18n="toggleProxyTitle">Proxy Kullan</div>
+              <div class="text-xs text-zinc-500 mt-1" data-i18n="toggleProxyDesc">Trafik için proxy rotasyonu aktif et
+              </div>
+            </div>
+            <input type="checkbox" id="useProxy" class="hidden">
+          </div>
+
+          <!-- Proxy List -->
+          <div class="space-y-2">
+            <label class="text-sm text-zinc-300" data-i18n="labelProxyList">Proxy Listesi (satır başına bir
+              tane)</label>
+            <textarea id="proxyList" rows="6"
+              placeholder="http://user:pass@host:port&#10;https://host:port&#10;socks5://host:port"
+              class="form-input w-full bg-bg-input border border-border rounded-lg px-4 py-2.5 text-xs font-mono transition-all resize-y min-h-[150px]"></textarea>
+            <p class="text-xs text-zinc-500" data-i18n="hintProxyFormat">Format: protocol://user:pass@host:port veya
+              protocol://host:port</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: TELEGRAM -->
+      <div id="tabContentTelegram" class="tab-content hidden space-y-6">
+
+        <!-- Telegram Notification Settings -->
+        <div class="feature-card bg-bg-card border border-border rounded-xl p-6">
+          <h2 class="text-sm font-semibold text-zinc-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+            </svg>
+            <span data-i18n="sectionTelegramSettings">Telegram Bildirim Ayarları</span>
+          </h2>
+
+          <!-- Enable Toggle -->
+          <div
+            class="flex items-start gap-3 p-4 rounded-lg bg-bg-input/50 hover:bg-bg-input transition-colors border border-transparent hover:border-border mb-6">
+            <div class="toggle-switch" id="toggleTelegramEnabled" data-input="telegramEnabled"></div>
+            <div class="flex-1 min-w-0">
+              <div class="text-sm font-medium text-zinc-200" data-i18n="toggleTelegramTitle">Telegram Bildirimleri</div>
+              <div class="text-xs text-zinc-500 mt-1" data-i18n="toggleTelegramDesc">Simülasyon başlangıç, bitiş ve
+                periyodik durum raporlarını Telegram'a gönder</div>
+            </div>
+            <input type="checkbox" id="telegramEnabled" class="hidden">
+          </div>
+
+          <!-- Bot Token & Chat ID -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div class="space-y-2">
+              <label class="text-sm text-zinc-300" data-i18n="labelBotToken">Bot Token</label>
+              <input type="text" id="telegramBotToken" placeholder="123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11"
+                class="form-input w-full bg-bg-input border border-border rounded-lg px-4 py-2.5 text-sm font-mono transition-all">
+              <p class="text-xs text-zinc-500" data-i18n="hintBotToken">@BotFather'dan aldığınız bot token</p>
+            </div>
+            <div class="space-y-2">
+              <label class="text-sm text-zinc-300" data-i18n="labelChatId">Chat ID</label>
+              <input type="text" id="telegramChatId" placeholder="-1001234567890"
+                class="form-input w-full bg-bg-input border border-border rounded-lg px-4 py-2.5 text-sm font-mono transition-all">
+              <p class="text-xs text-zinc-500" data-i18n="hintChatId">Grup veya kanal ID'si (@userinfobot ile öğrenin)
+              </p>
+            </div>
+          </div>
+
+          <!-- Report Interval -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div class="space-y-2">
+              <label class="text-sm text-zinc-300" data-i18n="labelReportInterval">Rapor Aralığı (dk)</label>
+              <input type="number" id="telegramReportInterval" value="10" min="1" max="120"
+                class="form-input w-full bg-bg-input border border-border rounded-lg px-4 py-2.5 text-sm font-mono transition-all">
+              <p class="text-xs text-zinc-500" data-i18n="hintReportInterval">Periyodik durum raporu gönderim aralığı
+              </p>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="flex flex-wrap gap-3">
+            <button id="btnTelegramTest"
+              class="px-5 py-2.5 bg-info hover:bg-info/80 text-white text-sm font-medium rounded-lg transition-all flex items-center gap-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+              <span data-i18n="btnTelegramTest">Bağlantı Testi</span>
+            </button>
+            <button id="btnTelegramSave"
+              class="px-5 py-2.5 bg-accent hover:bg-accent-hover text-white text-sm font-medium rounded-lg shadow-lg shadow-accent/20 transition-all flex items-center gap-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+              </svg>
+              <span data-i18n="btnTelegramSave">Kaydet</span>
+            </button>
+          </div>
+
+          <!-- Status Message -->
+          <div id="telegramStatus" class="hidden mt-4 p-3 rounded-lg text-sm"></div>
+        </div>
+
+        <!-- Telegram Info -->
+        <div class="feature-card bg-bg-card border border-border rounded-xl p-6">
+          <h2 class="text-sm font-semibold text-zinc-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span data-i18n="sectionTelegramInfo">Nasıl Kurulur?</span>
+          </h2>
+          <div class="space-y-3 text-sm text-zinc-400">
+            <div class="flex items-start gap-3 p-3 bg-bg-input/50 rounded-lg">
+              <span class="text-accent font-bold">1</span>
+              <div>
+                <div class="text-zinc-200 font-medium" data-i18n="telegramStep1Title">Bot Oluşturun</div>
+                <div class="text-xs text-zinc-500 mt-0.5" data-i18n="telegramStep1Desc">Telegram'da @BotFather'a /newbot
+                  yazın ve bot token'ı alın</div>
+              </div>
+            </div>
+            <div class="flex items-start gap-3 p-3 bg-bg-input/50 rounded-lg">
+              <span class="text-accent font-bold">2</span>
+              <div>
+                <div class="text-zinc-200 font-medium" data-i18n="telegramStep2Title">Chat ID Alın</div>
+                <div class="text-xs text-zinc-500 mt-0.5" data-i18n="telegramStep2Desc">@userinfobot'a mesaj atın veya
+                  botu bir gruba ekleyip grup ID'sini alın</div>
+              </div>
+            </div>
+            <div class="flex items-start gap-3 p-3 bg-bg-input/50 rounded-lg">
+              <span class="text-accent font-bold">3</span>
+              <div>
+                <div class="text-zinc-200 font-medium" data-i18n="telegramStep3Title">Test Edin</div>
+                <div class="text-xs text-zinc-500 mt-0.5" data-i18n="telegramStep3Desc">Token ve Chat ID'yi girin,
+                  "Bağlantı Testi" butonuna tıklayın</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: LOGS -->
+      <div id="tabContentLogs" class="tab-content hidden space-y-6">
+        <div class="feature-card bg-bg-card border border-border rounded-xl p-6">
+          <div class="flex flex-wrap items-center justify-between gap-4 mb-4">
+            <h2 class="text-sm font-semibold text-zinc-400 uppercase tracking-wider" data-i18n="sectionStructuredLogs">
+              Yapılandırılmış Loglar</h2>
+            <div class="flex flex-wrap items-center gap-2">
+              <input type="text" id="logSearch" placeholder="Ara..."
+                class="form-input bg-bg-input border border-border rounded-lg px-3 py-1.5 text-xs w-40">
+              <div class="flex gap-1">
+                <button
+                  class="log-filter active px-3 py-1.5 text-xs rounded-lg border border-success/30 bg-success/20 text-success"
+                  data-level="all" data-i18n="filterAll">Tümü</button>
+                <button class="log-filter px-3 py-1.5 text-xs rounded-lg border border-border bg-bg-input text-zinc-400"
+                  data-level="error">Error</button>
+                <button class="log-filter px-3 py-1.5 text-xs rounded-lg border border-border bg-bg-input text-zinc-400"
+                  data-level="warn">Warn</button>
+                <button class="log-filter px-3 py-1.5 text-xs rounded-lg border border-border bg-bg-input text-zinc-400"
+                  data-level="info">Info</button>
+              </div>
+              <button id="btnClearLogs" class="p-1.5 text-zinc-400 hover:text-error transition-colors" title="Temizle">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+              </button>
+              <button id="btnExportLogs" class="p-1.5 text-zinc-400 hover:text-success transition-colors"
+                title="Export">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Log Stats -->
+          <div class="flex gap-4 mb-4 text-xs">
+            <span class="text-zinc-500">Total: <span id="logTotalCount" class="text-zinc-300">0</span></span>
+            <span class="text-error">Error: <span id="logErrorCount" class="font-mono">0</span></span>
+            <span class="text-warning">Warn: <span id="logWarnCount" class="font-mono">0</span></span>
+            <span class="text-info">Info: <span id="logInfoCount" class="font-mono">0</span></span>
+          </div>
+
+          <div id="structuredLogContainer" class="bg-bg-input rounded-lg overflow-hidden">
+            <div class="text-zinc-600 italic text-center py-8" data-i18n="msgNoLogs">Log bekleniyor...</div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+
+    <!-- Action Bar -->
+    <div class="fixed bottom-0 left-0 right-0 bg-bg-card/90 backdrop-blur border-t border-border z-40">
+      <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <button id="btnLoadDefaults"
+            class="px-3 py-2 text-xs text-zinc-400 hover:text-white transition-colors whitespace-nowrap"
+            data-i18n="btnDefaults">Varsayılanlar</button>
+          <button id="btnReset"
+            class="px-3 py-2 text-xs text-zinc-400 hover:text-error transition-colors whitespace-nowrap"
+            data-i18n="btnReset">Sıfırla</button>
+        </div>
+        <div class="flex items-center gap-2">
+          <button id="btnSave"
+            class="px-5 py-2 bg-bg-input hover:bg-border text-white text-sm font-medium rounded-lg border border-border transition-all whitespace-nowrap"
+            data-i18n="btnSave">Kaydet</button>
+          <button id="btnStart"
+            class="px-5 py-2 bg-accent hover:bg-accent-hover text-white text-sm font-bold rounded-lg shadow-lg shadow-accent/20 transition-all hover:-translate-y-0.5 flex items-center gap-2 whitespace-nowrap">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span data-i18n="btnStart">Başlat</span>
+          </button>
+          <button id="btnStop"
+            class="hidden px-5 py-2 bg-error hover:bg-error/80 text-white text-sm font-bold rounded-lg transition-all flex items-center gap-2 whitespace-nowrap">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z" />
+            </svg>
+            <span data-i18n="btnStop">Durdur</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toastContainer" class="fixed top-20 right-6 z-50 space-y-2"></div>
+
+  </div>
+
+  <script>
+    // ==================== I18N ====================
+    const i18n = {
+      tr: {
+        // Language
+        langTitle: 'Dil Seçin / Select Language',
+        langSubtitle: 'Uygulama dilini seçin / Choose application language',
+
+        // Header
+        appTitle: 'VGBot',
+        appSubtitle: 'Gelişmiş SEO Trafik Botu',
+        statusRunning: 'Çalışıyor',
+        statusStopped: 'Durduruldu',
+
+        // Tabs
+        tabBasic: 'Temel',
+        tabTraffic: 'Trafik',
+        tabSeo: 'SEO',
+        tabAdvanced: 'Gelişmiş',
+        tabNetwork: 'Network',
+        tabSystem: 'Sistem',
+        tabVM: 'VM Spoof',
+        tabProxy: 'Proxy',
+        tabTelegram: '📱 Telegram',
+        tabDashboard: 'Dashboard',
+        tabLogs: 'Loglar',
+
+        // Sections
+        sectionTarget: 'Hedef Ayarları',
+        sectionPerformance: 'Performans Ayarları',
+        sectionQuickToggles: 'Hızlı Ayarlar',
+        sectionDevice: 'Cihaz Ayarları',
+        sectionBehavior: 'Davranış Simülasyonu',
+        sectionBounceSettings: 'Bounce Rate Ayarları',
+        sectionReferrer: 'Referrer Ayarları',
+        sectionKeywordsGeo: 'Anahtar Kelimeler & Konum',
+        sectionAnalytics: 'Analytics Eventleri',
+        sectionGSC: 'Google Search Console',
+        sectionBrowserProfile: 'Browser Profilleri',
+        sectionReturning: 'Returning Visitor',
+        sectionNetworkOptimizations: 'Network Optimizasyonları',
+        sectionConnPoolSettings: 'Connection Pool Ayarları',
+        sectionSystemOptimizations: 'Sistem Optimizasyonları',
+        sectionSystemInfo: 'Sistem Bilgisi',
+        sectionVMSpoofing: 'VM Fingerprint Spoofing',
+        sectionVMScore: 'VM Tespit Skoru',
+        sectionProxy: 'Proxy Ayarları',
+        sectionTrafficChart: 'Trafik Grafiği',
+        sectionLiveLogs: 'Canlı Loglar',
+        sectionStructuredLogs: 'Yapılandırılmış Loglar',
+        sectionTelegramSettings: 'Telegram Bildirim Ayarları',
+        sectionTelegramInfo: 'Nasıl Kurulur?',
+
+        // Labels
+        labelDomain: 'Domain',
+        labelGtag: 'GA4 Tracking ID',
+        labelOutputDir: 'Çıktı Dizini',
+        labelMaxPages: 'Max Sayfa',
+        labelDuration: 'Süre (dk)',
+        labelHpm: 'Hit/Dakika',
+        labelMaxConcurrent: 'Max Eşzamanlı',
+        labelDeviceType: 'Cihaz Tipi',
+        labelMinPageDuration: 'Min Sayfa Süresi (sn)',
+        labelMaxPageDuration: 'Max Sayfa Süresi (sn)',
+        labelTargetBounceRate: 'Hedef Bounce Rate (%)',
+        labelSessionMinPages: 'Min Sayfa/Oturum',
+        labelSessionMaxPages: 'Max Sayfa/Oturum',
+        labelReferrerSource: 'Referrer Kaynağı',
+        labelReferrerKeyword: 'Anahtar Kelime',
+        labelKeywords: 'Anahtar Kelimeler (virgülle ayırın)',
+        labelGeoCountry: 'Ülke',
+        labelGeoLanguage: 'Dil',
+        labelGeoTimezone: 'Saat Dilimi',
+        labelGscProperty: 'GSC Property URL',
+        labelGscApiKey: 'Service Account JSON',
+        labelProfilePath: 'Profil Dizini',
+        labelMaxProfiles: 'Max Profil Sayısı',
+        labelReturningRate: 'Returning Rate (%)',
+        labelReturningDays: 'Tekrar Ziyaret (gün)',
+        labelMaxIdleConns: 'Max Idle Connections',
+        labelMaxConnsPerHost: 'Max Conns Per Host',
+        labelCpuCount: 'CPU Çekirdek',
+        labelNumaNodes: 'NUMA Node',
+        labelAffinityStatus: 'Affinity',
+        labelNumaStatus: 'NUMA',
+        labelVMType: 'VM Tipi',
+        labelVMDetectionScore: 'Tespit Olasılığı',
+        labelProxyList: 'Proxy Listesi (satır başına bir tane)',
+        labelBotToken: 'Bot Token',
+        labelChatId: 'Chat ID',
+        labelReportInterval: 'Rapor Aralığı (dk)',
+
+        // Toggle Titles & Descs
+        toggleAntiDetectTitle: 'Anti-Detect Modu',
+        toggleAntiDetectDesc: 'Bot algılama sistemlerini atlatmak için gelişmiş gizleme',
+        toggleCanvasFpTitle: 'Canvas Fingerprint',
+        toggleCanvasFpDesc: 'Benzersiz canvas parmak izi ile gerçek tarayıcı taklidi',
+        toggleSitemapTitle: 'Sitemap Kullan',
+        toggleSitemapDesc: 'Site haritasından URL\'leri otomatik çek ve ziyaret et',
+        toggleScrollTitle: 'Scroll Eventleri',
+        toggleScrollDesc: 'Google Analytics\'e scroll derinliği eventleri gönder',
+        toggleMouseTitle: 'Mouse Hareketi',
+        toggleMouseDesc: 'İnsan benzeri mouse hareketleri ve hover efektleri',
+        toggleClicksTitle: 'Tıklama Simülasyonu',
+        toggleClicksDesc: 'Rastgele bağlantılara tıklayarak gezinti davranışı',
+        toggleKeyboardTitle: 'Klavye Simülasyonu',
+        toggleKeyboardDesc: 'Form alanlarına yazma ve klavye eventleri',
+        toggleFocusTitle: 'Focus/Blur Eventleri',
+        toggleFocusDesc: 'Sekme değişimi ve pencere focus/blur simülasyonu',
+        toggleSessionDepthTitle: 'Session Depth',
+        toggleSessionDepthDesc: 'Oturum başına birden fazla sayfa ziyareti',
+        toggleBounceTitle: 'Bounce Rate Kontrolü',
+        toggleBounceDesc: 'Hedef bounce rate\'e göre oturum davranışı ayarı',
+        toggleReferrerTitle: 'Referrer Simülasyonu',
+        toggleReferrerDesc: 'Organik trafik gibi görünmesi için referrer bilgisi ekle',
+        togglePageViewDesc: 'Her sayfa yüklemesinde GA4 page_view eventi gönder',
+        toggleSessionStartDesc: 'Yeni oturum başlatıldığında session_start eventi',
+        toggleEngagementDesc: 'Kullanıcı etkileşimini ölçen engagement eventleri',
+        toggleFirstVisitDesc: 'İlk ziyaret için first_visit eventi',
+        toggleGscTitle: 'GSC Entegrasyonu',
+        toggleGscDesc: 'Gerçek arama sorgularını çek ve simüle et',
+        toggleGscQueriesTitle: 'Sorguları Kullan',
+        toggleGscQueriesDesc: 'GSC\'den çekilen sorguları anahtar kelime olarak kullan',
+        toggleProfileTitle: 'Profil Persistence',
+        toggleProfileDesc: 'Tarayıcı profillerini kaydet ve returning visitor simüle et',
+        toggleCookiesTitle: 'Cookie\'leri Kaydet',
+        toggleCookiesDesc: 'Oturumlar arası cookie persistence',
+        toggleReturningTitle: 'Returning Visitor',
+        toggleReturningDesc: 'Aynı client_id ile tekrar ziyaretler',
+        toggleHTTP3Title: 'HTTP/3 QUIC',
+        toggleHTTP3Desc: 'Google tarafından geliştirilen yeni nesil protokol. Daha hızlı bağlantı kurulumu ve çoklu stream desteği ile performans artışı sağlar.',
+        toggleConnPoolTitle: 'Connection Pooling',
+        toggleConnPoolDesc: 'Bağlantıları yeniden kullanarak TCP el sıkışma süresinden tasarruf et. HTTP/2 ve Keep-Alive desteği ile %40+ performans artışı.',
+        toggleTCPTitle: 'TCP Fast Open',
+        toggleTCPDesc: 'SYN paketinde data göndererek 1-RTT tasarrufu sağlar. Yüksek gecikmeli bağlantılarda bağlantı süresini %30-50 azaltır.',
+        toggleAffinityTitle: 'CPU Affinity',
+        toggleAffinityDesc: 'Her thread\'i belirli bir CPU çekirdeğine sabitleyerek cache verimliliğini artır ve context switch\'i azalt. Yüksek yükte %15-25 performans kazancı.',
+        toggleNUMATitle: 'NUMA Awareness',
+        toggleNUMADesc: 'Non-Uniform Memory Access optimizasyonu. Thread\'leri local NUMA node\'a yerleştirerek memory latency\'sini azalt ve bant genişliğini artır.',
+        toggleVMSpoofTitle: 'VM Spoofing Aktif',
+        toggleVMSpoofDesc: 'Sanal makine ortamının izlerini gizle ve gerçek donanım gibi görün. VM detection scriptlerini atlatır.',
+        toggleHideVMTitle: 'VM Göstergelerini Gizle',
+        toggleHideVMDesc: 'window.VM, navigator.deviceMemory gibi VM belirteçlerini temizle veya sahte değerler ata.',
+        toggleHardwareTitle: 'Hardware ID Spoofing',
+        toggleHardwareDesc: 'CPU ID, MAC adresi, BIOS seri numarası gibi hardware tanımlayıcıları rastgele veya belirli bir VM tipine göre değiştir.',
+        toggleRandomizeTitle: 'Rastgele VM Parametreleri',
+        toggleRandomizeDesc: 'Her oturumda farklı VM parametreleri üreterek fingerprint çeşitliliği sağla ve izlenmeyi zorlaştır.',
+        toggleProxyTitle: 'Proxy Kullan',
+        toggleProxyDesc: 'Trafik için proxy rotasyonu aktif et',
+        toggleTelegramTitle: 'Telegram Bildirimleri',
+        toggleTelegramDesc: 'Simülasyon başlangıç, bitiş ve periyodik durum raporlarını Telegram\'a gönder',
+
+        // Options
+        optDeviceMixed: 'Karışık (Tümü)',
+        optDeviceDesktop: 'Masaüstü',
+        optDeviceMobile: 'Mobil',
+        optDeviceTablet: 'Tablet',
+        optMixed: 'Karışık',
+        optDirect: 'Direkt',
+        optRandom: 'Rastgele',
+        optAuto: 'Otomatik',
+        optNone: 'Otomatik / Yok',
+
+        // Hints
+        hintBounceRate: 'Düşük bounce rate için ziyaretçiler birden fazla sayfa gezer',
+        hintReferrerKeyword: 'Bu kelime ile Google\'dan gelmiş gibi görünür',
+        hintGscApiKey: 'Google Cloud Console\'dan alınan JSON key',
+        hintMaxIdleConns: 'Beklemede tutulacak max bağlantı sayısı',
+        hintMaxConnsPerHost: 'Her host için max eşzamanlı bağlantı',
+        hintVMType: 'Belirli bir VM tipini taklit et (boş bırakılırsa rastgele)',
+        hintVMScore: 'Düşük skor = Daha az tespit. VM spoofing aktif edildiğinde skor düşer.',
+        hintProxyFormat: 'Format: protocol://user:pass@host:port veya protocol://host:port',
+        hintBotToken: '@BotFather\'dan aldığınız bot token',
+        hintChatId: 'Grup veya kanal ID\'si (@userinfobot ile öğrenin)',
+        hintReportInterval: 'Periyodik durum raporu gönderim aralığı',
+        btnTelegramTest: 'Bağlantı Testi',
+        btnTelegramSave: 'Kaydet',
+        telegramStep1Title: 'Bot Oluşturun',
+        telegramStep1Desc: 'Telegram\'da @BotFather\'a /newbot yazın ve bot token\'ı alın',
+        telegramStep2Title: 'Chat ID Alın',
+        telegramStep2Desc: '@userinfobot\'a mesaj atın veya botu bir gruba ekleyip grup ID\'sini alın',
+        telegramStep3Title: 'Test Edin',
+        telegramStep3Desc: 'Token ve Chat ID\'yi girin, "Bağlantı Testi" butonuna tıklayın',
+
+        // Buttons
+        btnDefaults: 'Varsayılanlar',
+        btnReset: 'Sıfırla',
+        btnSave: 'Kaydet',
+        btnStart: 'Başlat',
+        btnStop: 'Durdur',
+
+        // Stats
+        statTotalHits: 'Toplam Hit',
+        statSuccessRate: 'Başarı Oranı',
+        statActiveProxies: 'Aktif Proxy',
+        statAvgResponse: 'Ort. Yanıt',
+
+        // Filters
+        filterAll: 'Tümü',
+
+        // Messages
+        msgNoLogs: 'Log bekleniyor...',
+
+        // Toast
+        toastSaved: 'Ayarlar kaydedildi',
+        toastStarted: 'Bot başlatıldı',
+        toastStopped: 'Bot durduruldu',
+        toastError: 'Hata oluştu',
+      },
+      en: {
+        // Language
+        langTitle: 'Select Language / Dil Seçin',
+        langSubtitle: 'Choose application language / Uygulama dilini seçin',
+
+        // Header
+        appTitle: 'VGBot',
+        appSubtitle: 'Advanced SEO Traffic Bot',
+        statusRunning: 'Running',
+        statusStopped: 'Stopped',
+
+        // Tabs
+        tabBasic: 'Basic',
+        tabTraffic: 'Traffic',
+        tabSeo: 'SEO',
+        tabAdvanced: 'Advanced',
+        tabNetwork: 'Network',
+        tabSystem: 'System',
+        tabVM: 'VM Spoof',
+        tabProxy: 'Proxy',
+        tabTelegram: '📱 Telegram',
+        tabDashboard: 'Dashboard',
+        tabLogs: 'Logs',
+
+        // Sections
+        sectionTarget: 'Target Settings',
+        sectionPerformance: 'Performance Settings',
+        sectionQuickToggles: 'Quick Settings',
+        sectionDevice: 'Device Settings',
+        sectionBehavior: 'Behavior Simulation',
+        sectionBounceSettings: 'Bounce Rate Settings',
+        sectionReferrer: 'Referrer Settings',
+        sectionKeywordsGeo: 'Keywords & Location',
+        sectionAnalytics: 'Analytics Events',
+        sectionGSC: 'Google Search Console',
+        sectionBrowserProfile: 'Browser Profiles',
+        sectionReturning: 'Returning Visitor',
+        sectionNetworkOptimizations: 'Network Optimizations',
+        sectionConnPoolSettings: 'Connection Pool Settings',
+        sectionSystemOptimizations: 'System Optimizations',
+        sectionSystemInfo: 'System Information',
+        sectionVMSpoofing: 'VM Fingerprint Spoofing',
+        sectionVMScore: 'VM Detection Score',
+        sectionProxy: 'Proxy Settings',
+        sectionTrafficChart: 'Traffic Chart',
+        sectionLiveLogs: 'Live Logs',
+        sectionStructuredLogs: 'Structured Logs',
+        sectionTelegramSettings: 'Telegram Notification Settings',
+        sectionTelegramInfo: 'How to Setup?',
+
+        // Labels
+        labelDomain: 'Domain',
+        labelGtag: 'GA4 Tracking ID',
+        labelOutputDir: 'Output Directory',
+        labelMaxPages: 'Max Pages',
+        labelDuration: 'Duration (min)',
+        labelHpm: 'Hits/Minute',
+        labelMaxConcurrent: 'Max Concurrent',
+        labelDeviceType: 'Device Type',
+        labelMinPageDuration: 'Min Page Duration (sec)',
+        labelMaxPageDuration: 'Max Page Duration (sec)',
+        labelTargetBounceRate: 'Target Bounce Rate (%)',
+        labelSessionMinPages: 'Min Pages/Session',
+        labelSessionMaxPages: 'Max Pages/Session',
+        labelReferrerSource: 'Referrer Source',
+        labelReferrerKeyword: 'Keyword',
+        labelKeywords: 'Keywords (comma separated)',
+        labelGeoCountry: 'Country',
+        labelGeoLanguage: 'Language',
+        labelGeoTimezone: 'Timezone',
+        labelGscProperty: 'GSC Property URL',
+        labelGscApiKey: 'Service Account JSON',
+        labelProfilePath: 'Profile Directory',
+        labelMaxProfiles: 'Max Profiles',
+        labelReturningRate: 'Returning Rate (%)',
+        labelReturningDays: 'Return Visit (days)',
+        labelMaxIdleConns: 'Max Idle Connections',
+        labelMaxConnsPerHost: 'Max Conns Per Host',
+        labelCpuCount: 'CPU Cores',
+        labelNumaNodes: 'NUMA Nodes',
+        labelAffinityStatus: 'Affinity',
+        labelNumaStatus: 'NUMA',
+        labelVMType: 'VM Type',
+        labelVMDetectionScore: 'Detection Likelihood',
+        labelProxyList: 'Proxy List (one per line)',
+        labelBotToken: 'Bot Token',
+        labelChatId: 'Chat ID',
+        labelReportInterval: 'Report Interval (min)',
+
+        // Toggle Titles & Descs
+        toggleAntiDetectTitle: 'Anti-Detect Mode',
+        toggleAntiDetectDesc: 'Advanced evasion to bypass bot detection systems',
+        toggleCanvasFpTitle: 'Canvas Fingerprint',
+        toggleCanvasFpDesc: 'Unique canvas fingerprint for realistic browser emulation',
+        toggleSitemapTitle: 'Use Sitemap',
+        toggleSitemapDesc: 'Automatically fetch and visit URLs from sitemap',
+        toggleScrollTitle: 'Scroll Events',
+        toggleScrollDesc: 'Send scroll depth events to Google Analytics',
+        toggleMouseTitle: 'Mouse Movement',
+        toggleMouseDesc: 'Human-like mouse movements and hover effects',
+        toggleClicksTitle: 'Click Simulation',
+        toggleClicksDesc: 'Simulate navigation by clicking random links',
+        toggleKeyboardTitle: 'Keyboard Simulation',
+        toggleKeyboardDesc: 'Typing and keyboard events for form fields',
+        toggleFocusTitle: 'Focus/Blur Events',
+        toggleFocusDesc: 'Tab switching and window focus/blur simulation',
+        toggleSessionDepthTitle: 'Session Depth',
+        toggleSessionDepthDesc: 'Multiple page visits per session',
+        toggleBounceTitle: 'Bounce Rate Control',
+        toggleBounceDesc: 'Adjust session behavior based on target bounce rate',
+        toggleReferrerTitle: 'Referrer Simulation',
+        toggleReferrerDesc: 'Add referrer info to appear as organic traffic',
+        togglePageViewDesc: 'Send GA4 page_view event on every page load',
+        toggleSessionStartDesc: 'Send session_start event when new session starts',
+        toggleEngagementDesc: 'Engagement events to measure user interaction',
+        toggleFirstVisitDesc: 'Send first_visit event for new visitors',
+        toggleGscTitle: 'GSC Integration',
+        toggleGscDesc: 'Fetch and simulate real search queries',
+        toggleGscQueriesTitle: 'Use Queries',
+        toggleGscQueriesDesc: 'Use GSC fetched queries as keywords',
+        toggleProfileTitle: 'Profile Persistence',
+        toggleProfileDesc: 'Save browser profiles and simulate returning visitors',
+        toggleCookiesTitle: 'Save Cookies',
+        toggleCookiesDesc: 'Cookie persistence between sessions',
+        toggleReturningTitle: 'Returning Visitor',
+        toggleReturningDesc: 'Revisit with same client_id',
+        toggleHTTP3Title: 'HTTP/3 QUIC',
+        toggleHTTP3Desc: 'Next-gen protocol by Google. Faster connection setup and multi-stream support for performance boost.',
+        toggleConnPoolTitle: 'Connection Pooling',
+        toggleConnPoolDesc: 'Reuse connections to save TCP handshake time. HTTP/2 and Keep-Alive support for 40%+ performance gain.',
+        toggleTCPTitle: 'TCP Fast Open',
+        toggleTCPDesc: 'Save 1-RTT by sending data in SYN packet. Reduces connection time by 30-50% on high latency connections.',
+        toggleAffinityTitle: 'CPU Affinity',
+        toggleAffinityDesc: 'Pin each thread to specific CPU core to improve cache efficiency and reduce context switches. 15-25% performance gain under high load.',
+        toggleNUMATitle: 'NUMA Awareness',
+        toggleNUMADesc: 'Non-Uniform Memory Access optimization. Place threads on local NUMA node to reduce memory latency and increase bandwidth.',
+        toggleVMSpoofTitle: 'VM Spoofing Active',
+        toggleVMSpoofDesc: 'Hide virtual machine traces and appear as real hardware. Bypass VM detection scripts.',
+        toggleHideVMTitle: 'Hide VM Indicators',
+        toggleHideVMDesc: 'Clean or fake VM indicators like window.VM, navigator.deviceMemory',
+        toggleHardwareTitle: 'Hardware ID Spoofing',
+        toggleHardwareDesc: 'Change hardware identifiers like CPU ID, MAC address, BIOS serial based on VM type',
+        toggleRandomizeTitle: 'Randomize VM Params',
+        toggleRandomizeDesc: 'Generate different VM params per session for fingerprint diversity',
+        toggleProxyTitle: 'Use Proxy',
+        toggleProxyDesc: 'Enable proxy rotation for traffic',
+        toggleTelegramTitle: 'Telegram Notifications',
+        toggleTelegramDesc: 'Send simulation start, end and periodic status reports to Telegram',
+
+        // Options
+        optDeviceMixed: 'Mixed (All)',
+        optDeviceDesktop: 'Desktop',
+        optDeviceMobile: 'Mobile',
+        optDeviceTablet: 'Tablet',
+        optMixed: 'Mixed',
+        optDirect: 'Direct',
+        optRandom: 'Random',
+        optAuto: 'Auto',
+        optNone: 'Auto / None',
+
+        // Hints
+        hintBounceRate: 'For low bounce rate, visitors browse multiple pages',
+        hintReferrerKeyword: 'Will appear as coming from Google with this keyword',
+        hintGscApiKey: 'JSON key from Google Cloud Console',
+        hintMaxIdleConns: 'Max connections to keep idle',
+        hintMaxConnsPerHost: 'Max concurrent connections per host',
+        hintVMType: 'Emulate specific VM type (random if empty)',
+        hintVMScore: 'Low score = Less detection. Score drops when VM spoofing is active.',
+        hintProxyFormat: 'Format: protocol://user:pass@host:port or protocol://host:port',
+        hintBotToken: 'Bot token from @BotFather',
+        hintChatId: 'Group or channel ID (learn via @userinfobot)',
+        hintReportInterval: 'Periodic status report sending interval',
+        btnTelegramTest: 'Test Connection',
+        btnTelegramSave: 'Save',
+        telegramStep1Title: 'Create a Bot',
+        telegramStep1Desc: 'Send /newbot to @BotFather on Telegram and get the bot token',
+        telegramStep2Title: 'Get Chat ID',
+        telegramStep2Desc: 'Message @userinfobot or add the bot to a group to get the group ID',
+        telegramStep3Title: 'Test It',
+        telegramStep3Desc: 'Enter Token and Chat ID, click "Test Connection" button',
+
+        // Buttons
+        btnDefaults: 'Defaults',
+        btnReset: 'Reset',
+        btnSave: 'Save',
+        btnStart: 'Start',
+        btnStop: 'Stop',
+
+        // Stats
+        statTotalHits: 'Total Hits',
+        statSuccessRate: 'Success Rate',
+        statActiveProxies: 'Active Proxies',
+        statAvgResponse: 'Avg Response',
+
+        // Filters
+        filterAll: 'All',
+
+        // Messages
+        msgNoLogs: 'Waiting for logs...',
+
+        // Toast
+        toastSaved: 'Settings saved',
+        toastStarted: 'Bot started',
+        toastStopped: 'Bot stopped',
+        toastError: 'An error occurred',
+      }
+    };
+
+    let currentLang = 'tr';
+
+    function t(key) {
+      return i18n[currentLang][key] || key;
+    }
+
+    function applyTranslations() {
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (i18n[currentLang][key]) {
+          el.textContent = i18n[currentLang][key];
+        }
+      });
+    }
+
+    // ==================== TOGGLE SWITCHES ====================
+    document.querySelectorAll('.toggle-switch').forEach(toggle => {
+      toggle.addEventListener('click', () => {
+        const inputId = toggle.getAttribute('data-input');
+        const input = document.getElementById(inputId);
+        if (input) {
+          input.checked = !input.checked;
+          toggle.classList.toggle('active', input.checked);
+        }
+      });
+    });
+
+    // ==================== TABS ====================
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const tab = btn.getAttribute('data-tab');
+        console.log('Switching to tab:', tab);
+
+        // Update buttons
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        // Update content
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
+
+        const contentId = 'tabContent' + tab.charAt(0).toUpperCase() + tab.slice(1);
+        console.log('Looking for content:', contentId);
+        const contentEl = document.getElementById(contentId);
+        if (contentEl) {
+          contentEl.classList.remove('hidden');
+        } else {
+          console.error('Tab content not found:', contentId);
+        }
+
+        // Init dashboard if needed
+        if (tab === 'dashboard') {
+          if (!metricsChart) initMetricsChart();
+          connectMetricsWebSocket();
+        }
+
+        // Load Telegram config on tab switch
+        if (tab === 'telegram') {
+          if (typeof loadTelegramConfig === 'function') loadTelegramConfig();
+        }
+      });
+    });
+
+    // ==================== LANGUAGE SELECTION ====================
+    document.getElementById('btnLangTR').addEventListener('click', () => {
+      currentLang = 'tr';
+      document.documentElement.lang = 'tr';
+      applyTranslations();
+      document.getElementById('langModal').classList.add('hidden');
+      document.getElementById('mainApp').classList.remove('hidden');
+    });
+
+    document.getElementById('btnLangEN').addEventListener('click', () => {
+      currentLang = 'en';
+      document.documentElement.lang = 'en';
+      applyTranslations();
+      document.getElementById('langModal').classList.add('hidden');
+      document.getElementById('mainApp').classList.remove('hidden');
+    });
+
+    // ==================== TOAST ====================
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      const colors = {
+        success: 'border-success/30 bg-success/10 text-success',
+        error: 'border-error/30 bg-error/10 text-error',
+        warning: 'border-warning/30 bg-warning/10 text-warning',
+        info: 'border-info/30 bg-info/10 text-info'
+      };
+      toast.className = `px-4 py-3 rounded-lg border ${colors[type] || colors.info} shadow-lg animate-fade-in flex items-center gap-2`;
+      toast.innerHTML = `
+        <span class="text-sm font-medium">${message}</span>
+      `;
+      container.appendChild(toast);
+      setTimeout(() => toast.remove(), 3000);
+    }
+
+    // ==================== API CALLS ====================
+    async function apiGet(path) {
+      const res = await fetch('/api' + path);
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(`HTTP ${res.status}: ${text}`);
+      }
+      return res.json();
+    }
+
+    async function apiPost(path, data) {
+      console.log('Sending to', path, ':', data);
+      const res = await fetch('/api' + path, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+
+      const responseText = await res.text();
+      console.log('Response:', responseText);
+
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}: ${responseText}`);
+      }
+
+      try {
+        return JSON.parse(responseText);
+      } catch (e) {
+        return { status: 'ok', text: responseText };
+      }
+    }
+
+    // ==================== LOAD/SAVE CONFIG ====================
+
+    // Convert snake_case to camelCase for frontend IDs
+    function toCamelCase(str) {
+      const mappings = {
+        'target_domain': 'domain',
+        'gtag_id': 'gtagId',
+        'output_dir': 'outputDir',
+        'max_pages': 'maxPages',
+        'duration_minutes': 'duration',
+        'hits_per_minute': 'hpm',
+        'max_concurrent_visits': 'maxConcurrent',
+        'anti_detect_mode': 'antiDetectMode',
+        'canvas_fingerprint': 'canvasFingerprint',
+        'send_scroll_event': 'sendScrollEvent',
+        'use_sitemap': 'useSitemap',
+        'sitemap_homepage_weight': 'sitemapHomepageWeight',
+        'device_type': 'deviceType',
+        'min_page_duration': 'minPageDuration',
+        'max_page_duration': 'maxPageDuration',
+        'enable_session_depth': 'enableSessionDepth',
+        'session_min_pages': 'sessionMinPages',
+        'session_max_pages': 'sessionMaxPages',
+        'enable_bounce_control': 'enableBounceControl',
+        'target_bounce_rate': 'targetBounceRate',
+        'simulate_mouse_move': 'simulateMouseMove',
+        'simulate_keyboard': 'simulateKeyboard',
+        'simulate_clicks': 'simulateClicks',
+        'simulate_focus': 'simulateFocus',
+        'referrer_enabled': 'referrerEnabled',
+        'referrer_source': 'referrerSource',
+        'referrer_keyword': 'referrerKeyword',
+        'geo_country': 'geoCountry',
+        'geo_language': 'geoLanguage',
+        'geo_timezone': 'geoTimezone',
+        'send_page_view': 'sendPageView',
+        'send_session_start': 'sendSessionStart',
+        'send_user_engagement': 'sendUserEngagement',
+        'send_first_visit': 'sendFirstVisit',
+        'enable_gsc_integration': 'enableGscIntegration',
+        'use_gsc_queries': 'useGscQueries',
+        'gsc_property_url': 'gscPropertyUrl',
+        'gsc_api_key': 'gscApiKey',
+        'enable_browser_profile': 'enableBrowserProfile',
+        'browser_profile_path': 'browserProfilePath',
+        'max_browser_profiles': 'maxBrowserProfiles',
+        'persist_cookies': 'persistCookies',
+        'persist_local_storage': 'persistLocalStorage',
+        'enable_returning_visitor': 'enableReturningVisitor',
+        'returning_visitor_rate': 'returningVisitorRate',
+        'returning_visitor_days': 'returningVisitorDays',
+        'enable_http3': 'enableHTTP3',
+        'enable_connection_pool': 'enableConnectionPool',
+        'enable_tcp_fast_open': 'enableTCPFastOpen',
+        'max_idle_conns': 'maxIdleConns',
+        'max_conns_per_host': 'maxConnsPerHost',
+        'enable_cpu_affinity': 'enableCPUAffinity',
+        'enable_numa': 'enableNUMA',
+        'enable_vm_spoofing': 'enableVMSpoofing',
+        'hide_vm_indicators': 'hideVMIndicators',
+        'spoof_hardware_ids': 'spoofHardwareIDs',
+        'randomize_vm_params': 'randomizeVMParams',
+        'vm_type': 'vmType',
+        'use_proxy': 'useProxy',
+        'proxy_host': 'proxyHost',
+        'proxy_port': 'proxyPort',
+        'proxy_user': 'proxyUser',
+        'proxy_pass': 'proxyPass',
+        'proxy_list': 'proxyList',
+        'scroll_strategy': 'scrollStrategy',
+        'use_public_proxy': 'usePublicProxy',
+        'checker_workers': 'checkerWorkers'
+      };
+
+      if (mappings[str]) return mappings[str];
+
+      // Generic snake_case to camelCase
+      return str.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
+    }
+
+    async function loadConfig() {
+      try {
+        const config = await apiGet('/config');
+        // Populate inputs from config
+        Object.keys(config).forEach(key => {
+          const id = toCamelCase(key);
+          const el = document.getElementById(id);
+          if (el) {
+            if (el.type === 'checkbox') {
+              el.checked = config[key];
+              const toggle = document.querySelector(`[data-input="${id}"]`);
+              if (toggle) toggle.classList.toggle('active', config[key]);
+            } else {
+              el.value = config[key];
+            }
+          }
+        });
+      } catch (e) {
+        console.error('Failed to load config:', e);
+      }
+    }
+
+    // Convert camelCase ID to snake_case key
+    function toSnakeCase(str) {
+      // Special mappings for specific fields
+      const mappings = {
+        'domain': 'target_domain',
+        'gtagId': 'gtag_id',
+        'outputDir': 'output_dir',
+        'maxPages': 'max_pages',
+        'duration': 'duration_minutes',
+        'hpm': 'hits_per_minute',
+        'maxConcurrent': 'max_concurrent_visits',
+        'antiDetectMode': 'anti_detect_mode',
+        'canvasFingerprint': 'canvas_fingerprint',
+        'sendScrollEvent': 'send_scroll_event',
+        'useSitemap': 'use_sitemap',
+        'sitemapHomepageWeight': 'sitemap_homepage_weight',
+        'deviceType': 'device_type',
+        'minPageDuration': 'min_page_duration',
+        'maxPageDuration': 'max_page_duration',
+        'enableSessionDepth': 'enable_session_depth',
+        'sessionMinPages': 'session_min_pages',
+        'sessionMaxPages': 'session_max_pages',
+        'enableBounceControl': 'enable_bounce_control',
+        'targetBounceRate': 'target_bounce_rate',
+        'simulateMouseMove': 'simulate_mouse_move',
+        'simulateKeyboard': 'simulate_keyboard',
+        'simulateClicks': 'simulate_clicks',
+        'simulateFocus': 'simulate_focus',
+        'referrerEnabled': 'referrer_enabled',
+        'referrerSource': 'referrer_source',
+        'referrerKeyword': 'referrer_keyword',
+        'geoCountry': 'geo_country',
+        'geoLanguage': 'geo_language',
+        'geoTimezone': 'geo_timezone',
+        'sendPageView': 'send_page_view',
+        'sendSessionStart': 'send_session_start',
+        'sendUserEngagement': 'send_user_engagement',
+        'sendFirstVisit': 'send_first_visit',
+        'enableGscIntegration': 'enable_gsc_integration',
+        'useGscQueries': 'use_gsc_queries',
+        'gscPropertyUrl': 'gsc_property_url',
+        'gscApiKey': 'gsc_api_key',
+        'enableBrowserProfile': 'enable_browser_profile',
+        'browserProfilePath': 'browser_profile_path',
+        'maxBrowserProfiles': 'max_browser_profiles',
+        'persistCookies': 'persist_cookies',
+        'persistLocalStorage': 'persist_local_storage',
+        'enableReturningVisitor': 'enable_returning_visitor',
+        'returningVisitorRate': 'returning_visitor_rate',
+        'returningVisitorDays': 'returning_visitor_days',
+        'enableHTTP3': 'enable_http3',
+        'enableConnectionPool': 'enable_connection_pool',
+        'enableTCPFastOpen': 'enable_tcp_fast_open',
+        'maxIdleConns': 'max_idle_conns',
+        'maxConnsPerHost': 'max_conns_per_host',
+        'enableCPUAffinity': 'enable_cpu_affinity',
+        'enableNUMA': 'enable_numa',
+        'enableVMSpoofing': 'enable_vm_spoofing',
+        'hideVMIndicators': 'hide_vm_indicators',
+        'spoofHardwareIDs': 'spoof_hardware_ids',
+        'randomizeVMParams': 'randomize_vm_params',
+        'vmType': 'vm_type',
+        'useProxy': 'use_proxy',
+        'proxyHost': 'proxy_host',
+        'proxyPort': 'proxy_port',
+        'proxyUser': 'proxy_user',
+        'proxyPass': 'proxy_pass',
+        'proxyList': 'proxy_list',
+        'scrollStrategy': 'scroll_strategy',
+        'usePublicProxy': 'use_public_proxy',
+        'checkerWorkers': 'checker_workers'
+      };
+
+      if (mappings[str]) return mappings[str];
+
+      // Generic camelCase to snake_case
+      return str.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
+    }
+
+    async function saveConfig() {
+      const config = {};
+      const seenKeys = new Set();
+
+      // Sadece belirli input ID'lerini işle
+      const allowedInputs = [
+        'domain', 'gtagId', 'outputDir', 'maxPages', 'duration', 'hpm', 'maxConcurrent',
+        'antiDetectMode', 'canvasFingerprint', 'sendScrollEvent', 'useSitemap',
+        'scrollStrategy', 'sitemapHomepageWeight', 'keywords',
+        'deviceType', 'minPageDuration', 'maxPageDuration',
+        'enableSessionDepth', 'sessionMinPages', 'sessionMaxPages',
+        'enableBounceControl', 'targetBounceRate',
+        'simulateMouseMove', 'simulateKeyboard', 'simulateClicks', 'simulateFocus',
+        'referrerEnabled', 'referrerSource', 'referrerKeyword',
+        'geoCountry', 'geoLanguage', 'geoTimezone',
+        'sendPageView', 'sendSessionStart', 'sendUserEngagement', 'sendFirstVisit',
+        'enableGscIntegration', 'useGscQueries', 'gscPropertyUrl', 'gscApiKey',
+        'enableBrowserProfile', 'browserProfilePath', 'maxBrowserProfiles',
+        'persistCookies', 'persistLocalStorage',
+        'enableReturningVisitor', 'returningVisitorRate', 'returningVisitorDays',
+        'enableHTTP3', 'enableConnectionPool', 'enableTCPFastOpen',
+        'maxIdleConns', 'maxConnsPerHost',
+        'enableCPUAffinity', 'enableNUMA',
+        'enableVMSpoofing', 'hideVMIndicators', 'spoofHardwareIDs', 'randomizeVMParams', 'vmType',
+        'useProxy', 'proxyHost', 'proxyPort', 'proxyUser', 'proxyPass', 'proxyList',
+        'usePublicProxy', 'checkerWorkers'
+      ];
+
+      allowedInputs.forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+
+        const key = toSnakeCase(id);
+        if (seenKeys.has(key)) return;
+        seenKeys.add(key);
+
+        try {
+          if (el.type === 'checkbox') {
+            config[key] = Boolean(el.checked);
+          } else if (el.type === 'number') {
+            const val = parseFloat(el.value);
+            config[key] = isNaN(val) ? 0 : val;
+          } else if (el.tagName === 'SELECT') {
+            config[key] = el.value || '';
+          } else if (el.tagName === 'TEXTAREA') {
+            const val = el.value || '';
+            if (key === 'keywords' && val.includes(',')) {
+              config[key] = val.split(',').map(k => k.trim()).filter(k => k);
+            } else if (key === 'proxy_list') {
+              config[key] = val; // String olarak gönder, backend parse etsin
+            } else {
+              config[key] = val;
+            }
+          } else {
+            config[key] = el.value || '';
+          }
+        } catch (err) {
+          console.warn(`Error processing ${id}:`, err);
+        }
+      });
+
+      // Ensure required fields exist with proper defaults
+      config.target_domain = config.target_domain || '';
+      config.max_pages = config.max_pages || 5;
+      config.duration_minutes = config.duration_minutes || 60;
+      config.hits_per_minute = config.hits_per_minute || 35;
+      config.max_concurrent_visits = config.max_concurrent_visits || 10;
+      config.output_dir = config.output_dir || './reports';
+      config.export_format = config.export_format || 'both';
+      config.scroll_strategy = config.scroll_strategy || 'gradual';
+      config.device_type = config.device_type || 'mixed';
+      config.referrer_source = config.referrer_source || 'google';
+      config.geo_country = config.geo_country || '';
+      config.geo_language = config.geo_language || '';
+      config.geo_timezone = config.geo_timezone || '';
+      config.gsc_property_url = config.gsc_property_url || '';
+      config.gsc_api_key = config.gsc_api_key || '';
+      config.browser_profile_path = config.browser_profile_path || './profiles';
+      config.max_browser_profiles = config.max_browser_profiles || 100;
+      config.returning_visitor_rate = config.returning_visitor_rate || 30;
+      config.returning_visitor_days = config.returning_visitor_days || 7;
+      config.max_idle_conns = config.max_idle_conns || 100;
+      config.max_conns_per_host = config.max_conns_per_host || 10;
+      config.vm_type = config.vm_type || '';
+      config.proxy_host = config.proxy_host || '';
+      config.proxy_port = config.proxy_port || 0;
+      config.proxy_user = config.proxy_user || '';
+      config.proxy_pass = config.proxy_pass || '';
+      config.proxy_list = config.proxy_list || '';
+      config.checker_workers = config.checker_workers || 50;
+
+      // Keywords - virgulle ayrılmış string'i array'e çevir
+      if (typeof config.keywords === 'string') {
+        config.keywords = config.keywords.split(',').map(k => k.trim()).filter(k => k);
+      }
+      if (!Array.isArray(config.keywords)) config.keywords = [];
+
+      // Device brands - varsa array'e çevir
+      if (typeof config.device_brands === 'string') {
+        config.device_brands = config.device_brands.split(',').map(k => k.trim()).filter(k => k);
+      }
+      if (!Array.isArray(config.device_brands)) config.device_brands = [];
+
+      // Exit pages - satırlara böl
+      if (typeof config.exit_pages === 'string') {
+        config.exit_pages = config.exit_pages.split('\n').map(k => k.trim()).filter(k => k);
+      }
+      if (!Array.isArray(config.exit_pages)) config.exit_pages = [];
+
+      // Private proxies boş array olarak gönder
+      config.private_proxies = [];
+
+      console.log('Config to save:', JSON.stringify(config, null, 2));
+
+      try {
+        const response = await apiPost('/config', config);
+        console.log('Save response:', response);
+        showToast(t('toastSaved'), 'success');
+      } catch (e) {
+        showToast(t('toastError') + ': ' + (e.message || ''), 'error');
+        console.error('Save error:', e);
+      }
+    }
+
+    // ==================== START/STOP ====================
+    let isRunning = false;
+
+    document.getElementById('btnStart').addEventListener('click', async () => {
+      try {
+        await apiPost('/start', {});
+        isRunning = true;
+        document.getElementById('btnStart').classList.add('hidden');
+        document.getElementById('btnStop').classList.remove('hidden');
+        document.getElementById('statusDot').className = 'w-2 h-2 rounded-full bg-success animate-pulse';
+        document.getElementById('statusText').textContent = t('statusRunning');
+        showToast(t('toastStarted'), 'success');
+      } catch (e) {
+        showToast(t('toastError'), 'error');
+      }
+    });
+
+    document.getElementById('btnStop').addEventListener('click', async () => {
+      try {
+        await apiPost('/stop', {});
+        isRunning = false;
+        document.getElementById('btnStop').classList.add('hidden');
+        document.getElementById('btnStart').classList.remove('hidden');
+        document.getElementById('statusDot').className = 'w-2 h-2 rounded-full bg-zinc-500';
+        document.getElementById('statusText').textContent = t('statusStopped');
+        showToast(t('toastStopped'), 'info');
+      } catch (e) {
+        showToast(t('toastError'), 'error');
+      }
+    });
+
+    document.getElementById('btnSave').addEventListener('click', saveConfig);
+
+    // ==================== CHART ====================
+    let metricsChart = null;
+
+    function initMetricsChart() {
+      const ctx = document.getElementById('trafficChart')?.getContext('2d');
+      if (!ctx) return;
+
+      metricsChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: [],
+          datasets: [{
+            label: 'Hits',
+            data: [],
+            borderColor: '#dc2626',
+            backgroundColor: 'rgba(220,38,38,0.1)',
+            fill: true,
+            tension: 0.4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { grid: { color: '#27272a' }, ticks: { color: '#71717a' } },
+            y: { grid: { color: '#27272a' }, ticks: { color: '#71717a' } }
+          }
+        }
+      });
+    }
+
+    // ==================== WEBSOCKET ====================
+    let statusWS = null;
+    let metricsWS = null;
+
+    // SECURITY FIX: Connect to main WebSocket for status updates (includes metrics)
+    function connectStatusWebSocket() {
+      if (statusWS && statusWS.readyState === WebSocket.OPEN) return;
+      const wsUrl = (window.location.protocol === 'https:' ? 'wss:' : 'ws:') + '//' + window.location.host + '/api/ws';
+      try {
+        if (statusWS) {
+          statusWS.close();
+        }
+        statusWS = new WebSocket(wsUrl);
+        statusWS.onopen = () => {
+          console.log('[WS] Status WebSocket connected');
+        };
+        statusWS.onmessage = (e) => {
+          try {
+            const event = JSON.parse(e.data);
+            console.log('[WS] Status event:', event.type, event);
+
+            // Handle status updates (includes metrics) - ANLIK GÜNCELLEME
+            if (event.type === 'status') {
+              updateDashboard(event.data);
+
+              // Trafik grafiğini güncelle
+              if (metricsChart && event.data) {
+                const now = new Date();
+                const label = now.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                const totalHits = event.data.metrics?.total_hits || event.data.total_hits || 0;
+
+                metricsChart.data.labels.push(label);
+                metricsChart.data.datasets[0].data.push(totalHits);
+
+                // Son 50 veri noktasını tut
+                if (metricsChart.data.labels.length > 50) {
+                  metricsChart.data.labels.shift();
+                  metricsChart.data.datasets[0].data.shift();
+                }
+
+                metricsChart.update('none'); // Animasyon yok, anlık güncelleme
+              }
+            }
+            // Handle log messages
+            if (event.type === 'log') {
+              if (typeof event.data === 'string') {
+                addLiveLogEntry('info', event.data);
+              }
+            }
+          } catch (err) {
+            console.error('[WS] Status message error:', err);
+          }
+        };
+        statusWS.onclose = () => {
+          statusWS = null;
+          console.log('[WS] Status WebSocket disconnected, reconnecting...');
+          setTimeout(connectStatusWebSocket, 2000); // 2 saniyede bir reconnect dene
+        };
+        statusWS.onerror = (err) => {
+          console.error('[WS] Status WebSocket error:', err);
+        };
+      } catch (err) {
+        console.error('[WS] Failed to connect status WebSocket:', err);
+        setTimeout(connectStatusWebSocket, 2000);
+      }
+    }
+
+    // Connect to metrics stream WebSocket (optional, for detailed metrics)
+    function connectMetricsWebSocket() {
+      if (metricsWS) return;
+      const wsUrl = (window.location.protocol === 'https:' ? 'wss:' : 'ws:') + '//' + window.location.host + '/api/metrics/stream';
+      try {
+        metricsWS = new WebSocket(wsUrl);
+        metricsWS.onopen = () => {
+          document.getElementById('liveLogStatus').textContent = '● Connected';
+          document.getElementById('liveLogStatus').className = 'text-xs text-success';
+        };
+        metricsWS.onmessage = (e) => {
+          try {
+            const event = JSON.parse(e.data);
+            console.log('[WS] Metrics event:', event.type);
+
+            // Event tipine göre işlem yap
+            switch (event.type) {
+              case 'metrics:snapshot':
+              case 'metrics:performance':
+                updateDashboard(event);
+                break;
+              case 'metrics:hit':
+                // Hit event log'a ekle
+                if (event.data) {
+                  addLiveLogEntry('info', `Hit: ${event.data.url} (${event.data.response_time_ms}ms)`);
+                }
+                break;
+              case 'metrics:proxy_status':
+                if (event.data) {
+                  const status = event.data.status;
+                  const level = status === 'failed' ? 'error' : 'info';
+                  addLiveLogEntry(level, `Proxy ${event.data.proxy}: ${status}`);
+                }
+                break;
+              default:
+                updateDashboard(event);
+            }
+          } catch (err) {
+            console.error('[WS] Metrics message error:', err);
+          }
+        };
+        metricsWS.onclose = () => {
+          metricsWS = null;
+          document.getElementById('liveLogStatus').textContent = '● Disconnected';
+          document.getElementById('liveLogStatus').className = 'text-xs text-error';
+          setTimeout(connectMetricsWebSocket, 5000);
+        };
+      } catch (_) { }
+    }
+
+    function updateDashboard(eventData) {
+      // WebSocket event yapısı: { type, timestamp, data }
+      // Veya düz snapshot: { total_hits, success_rate, ... }
+
+      const data = eventData.data || eventData;
+
+      // SECURITY FIX: Handle both flat structure and nested metrics structure
+      const metrics = data.metrics || {};
+
+      // Update total hits - öncelik: metrics.total_hits > data.total_hits
+      const totalHits = metrics.total_hits !== undefined ? metrics.total_hits : (data.total_hits !== undefined ? data.total_hits : 0);
+      if (totalHits !== undefined && totalHits !== null) {
+        document.getElementById('dashTotalHits').textContent = totalHits;
+      }
+
+      // Update success rate (can be 0-1 or 0-100)
+      const successRate = metrics.success_rate !== undefined ? metrics.success_rate : (data.success_rate !== undefined ? data.success_rate : 0);
+      if (successRate !== undefined && successRate !== null) {
+        const rate = typeof successRate === 'number'
+          ? (successRate < 1 ? Math.round(successRate * 100) : Math.round(successRate))
+          : successRate;
+        document.getElementById('dashSuccessRate').textContent = rate + '%';
+      }
+
+      // Update active proxies
+      const activeProxies = metrics.active_proxies !== undefined ? metrics.active_proxies : (data.active_proxies !== undefined ? data.active_proxies : 0);
+      if (activeProxies !== undefined && activeProxies !== null) {
+        document.getElementById('dashActiveProxies').textContent = activeProxies;
+      }
+
+      // Update average response time
+      const avgResponse = metrics.avg_response_ms !== undefined ? metrics.avg_response_ms : (data.avg_response_ms !== undefined ? data.avg_response_ms : (data.avg_response_time_ms !== undefined ? data.avg_response_time_ms : 0));
+      if (avgResponse !== undefined && avgResponse !== null) {
+        document.getElementById('dashAvgResponse').textContent = Math.round(avgResponse) + 'ms';
+      }
+
+      // Update running status
+      if (data.running !== undefined) {
+        const isRunning = data.running === true;
+        if (isRunning) {
+          document.getElementById('statusDot').className = 'w-2 h-2 rounded-full bg-success animate-pulse';
+          document.getElementById('statusText').textContent = t('statusRunning');
+          document.getElementById('btnStart').classList.add('hidden');
+          document.getElementById('btnStop').classList.remove('hidden');
+        } else {
+          document.getElementById('statusDot').className = 'w-2 h-2 rounded-full bg-zinc-500';
+          document.getElementById('statusText').textContent = t('statusStopped');
+          document.getElementById('btnStop').classList.add('hidden');
+          document.getElementById('btnStart').classList.remove('hidden');
+        }
+      }
+    }
+
+    // ==================== TELEGRAM NOTIFICATIONS ====================
+    async function loadTelegramConfig() {
+      try {
+        const config = await apiGet('/notification/telegram/config');
+        document.getElementById('telegramBotToken').value = config.telegram_bot_token || '';
+        document.getElementById('telegramChatId').value = config.telegram_chat_id || '';
+        document.getElementById('telegramReportInterval').value = config.telegram_report_interval || 10;
+
+        const enabled = config.enable_telegram_notify || false;
+        document.getElementById('telegramEnabled').checked = enabled;
+        const toggle = document.getElementById('toggleTelegramEnabled');
+        if (toggle) toggle.classList.toggle('active', enabled);
+      } catch (e) {
+        console.error('Failed to load Telegram config:', e);
+      }
+    }
+
+    function showTelegramStatus(message, isError) {
+      const statusEl = document.getElementById('telegramStatus');
+      statusEl.classList.remove('hidden');
+      statusEl.className = `mt-4 p-3 rounded-lg text-sm ${isError
+        ? 'border border-error/30 bg-error/10 text-error'
+        : 'border border-success/30 bg-success/10 text-success'}`;
+      statusEl.textContent = message;
+      setTimeout(() => statusEl.classList.add('hidden'), 5000);
+    }
+
+    document.getElementById('btnTelegramTest')?.addEventListener('click', async () => {
+      const btn = document.getElementById('btnTelegramTest');
+      const botToken = document.getElementById('telegramBotToken').value.trim();
+      const chatId = document.getElementById('telegramChatId').value.trim();
+
+      if (!botToken || !chatId) {
+        showTelegramStatus(t('hintBotToken') + ' & ' + t('hintChatId'), true);
+        return;
+      }
+
+      btn.disabled = true;
+      btn.style.opacity = '0.5';
+
+      try {
+        const res = await fetch('/api/notification/telegram/test', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ bot_token: botToken, chat_id: chatId })
+        });
+        const data = await res.json();
+
+        if (res.ok) {
+          showTelegramStatus(data.message || 'Success!', false);
+          showToast(data.message || 'Telegram OK', 'success');
+        } else {
+          showTelegramStatus(data.error || 'Test failed', true);
+          showToast(data.error || 'Test failed', 'error');
+        }
+      } catch (e) {
+        showTelegramStatus(e.message, true);
+        showToast(t('toastError'), 'error');
+      } finally {
+        btn.disabled = false;
+        btn.style.opacity = '1';
+      }
+    });
+
+    document.getElementById('btnTelegramSave')?.addEventListener('click', async () => {
+      const btn = document.getElementById('btnTelegramSave');
+      btn.disabled = true;
+      btn.style.opacity = '0.5';
+
+      try {
+        const payload = {
+          telegram_bot_token: document.getElementById('telegramBotToken').value.trim(),
+          telegram_chat_id: document.getElementById('telegramChatId').value.trim(),
+          enable_telegram_notify: document.getElementById('telegramEnabled').checked,
+          telegram_report_interval: parseInt(document.getElementById('telegramReportInterval').value) || 10,
+        };
+
+        await apiPost('/notification/telegram/config', payload);
+        showTelegramStatus(t('toastSaved'), false);
+        showToast(t('toastSaved'), 'success');
+      } catch (e) {
+        showTelegramStatus(e.message, true);
+        showToast(t('toastError'), 'error');
+      } finally {
+        btn.disabled = false;
+        btn.style.opacity = '1';
+      }
+    });
+
+    // ==================== INIT ====================
+    document.addEventListener('DOMContentLoaded', () => {
+      applyTranslations();
+      loadConfig();
+
+      // SECURITY FIX: Connect to both WebSocket endpoints
+      // Status WebSocket for dashboard updates (primary) - ANLIK GÜNCELLEME İÇİN
+      connectStatusWebSocket();
+
+      // Metrics WebSocket for detailed metrics (optional)
+      if (!document.getElementById('tabContentDashboard').classList.contains('hidden')) {
+        connectMetricsWebSocket();
+      }
+
+      // Periodically fetch status via API as fallback (WebSocket bağlantısı koparsa)
+      setInterval(async () => {
+        try {
+          const status = await apiGet('/status');
+          updateDashboard(status);
+        } catch (e) {
+          console.error('Failed to fetch status:', e);
+        }
+      }, 3000); // Her 3 saniyede bir fallback güncelleme
+
+      // Tab değiştiğinde WebSocket bağlantısını kontrol et
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const tab = btn.getAttribute('data-tab');
+          if (tab === 'dashboard') {
+            // Dashboard sekmesine geçildiğinde WebSocket bağlantısını kontrol et
+            if (!statusWS || statusWS.readyState !== WebSocket.OPEN) {
+              connectStatusWebSocket();
+            }
+            if (!metricsWS || metricsWS.readyState !== WebSocket.OPEN) {
+              connectMetricsWebSocket();
+            }
+          }
+        });
+      });
+    });
+  </script>
+</body>
+
+</html>
